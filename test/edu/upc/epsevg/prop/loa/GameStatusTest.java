@@ -33,8 +33,10 @@ public class GameStatusTest {
             {+1,+0,+0,+0,+0,+0,+0,+1},
             {+0,-1,-1,-1,-1,-1,-1,+0}
         };
-        GameStatus gs = new GameStatus(matrix);
-        System.out.println(gs.toString());        
+        ElMeuStatus gs = new ElMeuStatus(matrix);
+        System.out.println(gs.toString());
+        
+        System.out.println("heuristica: "+gs.getHeuristica(gs));
         System.out.println("=========================================================");
                
        
@@ -46,16 +48,15 @@ public class GameStatusTest {
             {+0,+0,+0,+1,+1,+1,+1,+0},
             {+0,+0,+0,+1,+1,+0,+0,+1},
             {+0,+0,+0,+1,+0,+0,+0,+1},
-            {+0,+0,+0,+0,+0,+0,+0,+1},
+            {+0,+0,+0,+0,+0,+0,+0,+0},
             {+0,-1,-1,-1,-1,-1,-1,+0}
         };            
         GameStatus gs2 = new GameStatus(matrix2);
         System.out.println(gs2.toString());
         System.out.println(gs2.getPos(7, 2));
+        System.out.println("heuristica: "+gs.getHeuristica(gs2));
         System.out.println("=========================================================");
         
     }
-
- 
-    
+   
 }

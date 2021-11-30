@@ -21,7 +21,10 @@ public class OLA implements IPlayer, IAuto {
     private String name;
     private GameStatus s;
     private int prof;
-    private Point anterior;
+    //private Point anterior;
+    private Point from;
+    //private Point fromAnt;
+    private Point to;
 
     public OLA(String name, int prof) {
         this.name = name;
@@ -44,17 +47,56 @@ public class OLA implements IPlayer, IAuto {
     @Override
     public Move move(GameStatus s) {
         
+        int valor = Integer.MIN_VALUE;
+        int alpha = Integer.MIN_VALUE;
+        int beta = Integer.MAX_VALUE;
+        int pprof = prof;
+        
+        Point fromAnt = new Point(0,0);
+        Point pos = new Point(0,0);
+        
         CellType color = s.getCurrentPlayer();
         this.s = s;
         int qn = s.getNumberOfPiecesPerColor(color);
-        ArrayList<Point> pendingPieces = new ArrayList<>();
+        //ArrayList<Point> pendingPieces = new ArrayList<>();
+        ArrayList<Point> moviments = new ArrayList<>();
+        
+        // Obtenim les peces i la seva ubicació
         for (int q = 0; q < qn; q++) {
-            pendingPieces.add(s.getPiece(color, q));
+            from = s.getPiece(color,q);
+            // Per cada peça obtenim els seus moviments possibles
+            moviments = (s.getMoves(from));
+            for(int qt = 0; qt < moviments.size();qt++){
+                to = moviments.remove(0);
+                
+                //fusion de minimax y move
+                if(!s.isGameOver() && s.getMoves(from) != null){
+                    System.out.println("No peto");
+                    GameStatus saux = new GameStatus(s);
+                    
+                    //ArrayList<Point> moviments = saux.getMoves(from);
+                    //to = moviments.remove(0);
+                    saux.movePiece(from, to);
+                    System.out.println("No peto2");
+                    
+                    int valorNou = movMin(s, pprof-1, alpha,beta);
+                    
+                    if(valorNou > valor){
+                        valor = valorNou;
+                        fromAnt = from;
+                        pos = to;
+                    } 
+                }
+                        //return pos;
+                
+                
+                
+                //Point tirada = minimax(s, prof,from,to);
+                //qt = 0;
+            }
         }
-        
-        Point tirada = minimax(s, prof);
-        
-        return new Move(anterior, tirada, 0, 0, SearchType.RANDOM);
+
+        return new Move(from, pos, 0, 0, SearchType.MINIMAX);
     }
 
     /**
@@ -74,18 +116,19 @@ public class OLA implements IPlayer, IAuto {
      * el árbol.
      * @return retornamos la columna siguiente en la que pondremos nuestra ficha.
      */
-    public Point minimax(GameStatus s, int pprof){
+   /* public Point minimax(GameStatus s, int pprof, Point anterior, Point to){
         int valor = Integer.MIN_VALUE;
-        Point pos = new Point(0,0), from = new Point(0,0);
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
+        Point pos = new Point(0,0);
+        from = anterior;
+
         
-        for (int i = 1; i < 8; i++){
-            for(int j = 0; j < 8; j++){
+    //    for (int i = 1; i < 8; i++){
+    //        for(int j = 0; j < 8; j++){
                 
                 from = new Point(i,j);
                 
-                Point to;
                 
                 if(!s.isGameOver() && s.getMoves(from) != null){
                     System.out.println("No peto");
@@ -104,11 +147,12 @@ public class OLA implements IPlayer, IAuto {
                         pos = to;
                     } 
                 }
+                        return pos;
             }
-        }
+      //  }
         
-        return pos;
-    }
+
+    //} */
     
     /**
      * Función que nos devuelve el movimiento con menor valor heurístico de todos los
