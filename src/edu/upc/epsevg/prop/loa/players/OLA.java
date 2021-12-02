@@ -160,8 +160,6 @@ public class OLA implements IPlayer, IAuto {
                         beta = Math.min(value, beta);
 
                         if (alpha >= beta) {
-                            //break;
-                            
                             return value;
                         }
 
@@ -231,7 +229,6 @@ public class OLA implements IPlayer, IAuto {
                         alpha = Math.max(value, alpha);
 
                         if (alpha >= beta) {
-                            //break;
                             return value;
                         }
 
@@ -242,4 +239,9 @@ public class OLA implements IPlayer, IAuto {
         }
         return value;
     }
+    
+    public int Heurística(GameStatus s) {
+        return 0;
+    }
 }
+

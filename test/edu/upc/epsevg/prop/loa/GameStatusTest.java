@@ -57,6 +57,26 @@ public class GameStatusTest {
         System.out.println("heuristica: "+gs.getHeuristica(gs2));
         System.out.println("=========================================================");
         
+        
+        int matrix3[][] = 
+        new int[][] {
+            {+0,-1,-1,-1,-1,-1,-1,+0},
+            {+0,+0,+0,+0,+0,+0,+0,+0},
+            {+0,+0,+0,+1,+0,+0,+0,+1},
+            {+0,+0,+0,+1,+1,+1,+0,+1},
+            {+0,+0,+0,+1,+1,+0,+0,+1},
+            {+0,+0,+0,+1,+0,+0,+0,+1},
+            {+0,+0,+0,+0,+0,+0,+0,+0},
+            {+0,-1,-1,-1,-1,-1,-1,+0}
+        };            
+        GameStatus gs3 = new GameStatus(matrix3);
+        System.out.println(gs3.toString());
+        System.out.println(gs3.getPos(7, 2));
+        System.out.println("heuristica: "+gs.getHeuristica(gs3));
+        System.out.println("Piezas centro: " + gs.retornaCentro().toString());
+        System.out.println("Size euclidiana: " + gs.pintaSize());
+        System.out.println("Euclidianas: " + gs.retornaEuclidiana());
+        System.out.println("=========================================================");
     }
    
 }
