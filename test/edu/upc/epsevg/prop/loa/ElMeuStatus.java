@@ -33,11 +33,12 @@ public class ElMeuStatus extends GameStatus {
 
         @Override
         public String toString() {
-            return "Tuple{" + "from=" + from + ", cercano=" + cercano + ", valor=" + valor + '}' + '\n';
+            return '\n' + "Tuple{" + "from=" + from + ", cercano=" + cercano + ", valor=" + valor + '}';
         }
     }   
     
     private ArrayList<Point> piezasCentro = new ArrayList();
+    private ArrayList<Point> piezasFuera = new ArrayList();
     private ArrayList<Tuple> euclidianas = new ArrayList();
     
     public ElMeuStatus(int [][] tauler){
@@ -48,10 +49,10 @@ public class ElMeuStatus extends GameStatus {
         super(gs);
     }   
      
-    public int getHeuristica(GameStatus gs){
-        CellType color = gs.getCurrentPlayer();
+    public int getHeuristica(){
+        CellType color = this.getCurrentPlayer();
         
-        int center = calculCenterHeur(gs, color);
+        int center = calculCenterHeur(this, color);
         
         return center;
     }
@@ -69,28 +70,26 @@ public class ElMeuStatus extends GameStatus {
                  piezasCentro.add(from);
                  cont++;
              }
+             else piezasFuera.add(from);
          }
          
-         for(int i = 0; i < quantes; i++){
-             from = gs.getPiece(color, i);
-             Tuple min = new Tuple();
-             
-             if(!comprovaX(from) || !comprovaY(from)) {
-                 double minim = 10000;
-                 
-                 for(int j = 0; j < piezasCentro.size(); j++) {
-                     
-                     Point piezaCentro = piezasCentro.get(j);
-                     
-                     double eucl = Euclidiana(from, piezaCentro );
-                     
-                     if(minim > eucl) {
-                         Tuple p = new Tuple (from, piezaCentro, eucl);
-                         min = p;
-                         minim = eucl;
-                     }
-                 }
-             }
+         for(int i = 0; i < piezasFuera.size(); i++){
+            from = piezasFuera.get(i);
+            Tuple min = new Tuple();
+            double minim = 10000;
+
+            for(int j = 0; j < piezasCentro.size(); j++) {
+
+                Point piezaCentro = piezasCentro.get(j);
+
+                double eucl = Euclidiana(from, piezaCentro );
+
+                if(minim > eucl) {
+                    Tuple p = new Tuple (from, piezaCentro, eucl);
+                    min = p;
+                    minim = eucl;
+                }
+            }
              
              if(min.from != null) euclidianas.add(min);
          }
@@ -100,20 +99,18 @@ public class ElMeuStatus extends GameStatus {
     
     public double Euclidiana(Point from, Point center) {
         
-        double calx = Math.pow(2,from.x - center.x);
-        double caly = Math.pow(2,from.y - center.y);
+        double calx = Math.pow(from.x - center.x, 2);
+        double caly = Math.pow(from.y - center.y, 2);
         
         return Math.sqrt(calx + caly);
     }
     
     public boolean comprovaX(Point from) {
-        if(from.x >= 2 && from.x <= 4) return true;
-        else return false;
+        return from.x >= 2 && from.x <= 5;
     }
     
     public boolean comprovaY(Point from) {
-        if(from.y >= 2 && from.y <= 5) return true;
-        else return false;
+        return from.y >= 2 && from.y <= 5;
     }
     
     public ArrayList retornaCentro(){

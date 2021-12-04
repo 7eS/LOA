@@ -23,59 +23,60 @@ public class GameStatusTest {
     @Test
     public void testGetHeuristic() {
         
-        int matrix[][] = new int[][] {
-            {+0,-1,-1,-1,-1,-1,-1,+0},
-            {+1,+0,+0,+0,+0,+0,+0,+1},
-            {+1,+0,+0,+0,+0,+0,+0,+1},
-            {+1,+0,+0,+0,+0,+0,+0,+1},
-            {+1,+0,+0,+0,+0,+0,+0,+1},
-            {+1,+0,+0,+0,+0,+0,+0,+1},
-            {+1,+0,+0,+0,+0,+0,+0,+1},
-            {+0,-1,-1,-1,-1,-1,-1,+0}
-        };
-        ElMeuStatus gs = new ElMeuStatus(matrix);
-        System.out.println(gs.toString());
-        
-        System.out.println("heuristica: "+gs.getHeuristica(gs));
-        System.out.println("=========================================================");
-               
-       
-        int matrix2[][] = 
-        new int[][] {
-            {+0,-1,-1,-1,-1,-1,-1,+0},
-            {+0,+0,+0,+0,+0,+0,+0,+0},
-            {+0,+0,+0,+1,+0,+0,+0,+1},
-            {+0,+0,+0,+1,+1,+1,+1,+0},
-            {+0,+0,+0,+1,+1,+0,+0,+1},
-            {+0,+0,+0,+1,+0,+0,+0,+1},
-            {+0,+0,+0,+0,+0,+0,+0,+0},
-            {+0,-1,-1,-1,-1,-1,-1,+0}
-        };            
-        GameStatus gs2 = new GameStatus(matrix2);
-        System.out.println(gs2.toString());
-        System.out.println(gs2.getPos(7, 2));
-        System.out.println("heuristica: "+gs.getHeuristica(gs2));
-        System.out.println("=========================================================");
-        
-        
+//        int matrix[][] = new int[][] {
+//            {+0,-1,-1,-1,-1,-1,-1,+0},
+//            {+1,+0,+0,+0,+0,+0,+0,+1},
+//            {+1,+0,+0,+0,+0,+0,+0,+1},
+//            {+1,+0,+0,+0,+0,+0,+0,+1},
+//            {+1,+0,+0,+0,+0,+0,+0,+1},
+//            {+1,+0,+0,+0,+0,+0,+0,+1},
+//            {+1,+0,+0,+0,+0,+0,+0,+1},
+//            {+0,-1,-1,-1,-1,-1,-1,+0}
+//        };
+//        ElMeuStatus gs = new ElMeuStatus(matrix);
+//        System.out.println(gs.toString());
+//        
+//        System.out.println("heuristica: "+gs.getHeuristica());
+//        System.out.println("=========================================================");
+//               
+//       
+//        int matrix2[][] = 
+//        new int[][] {
+//            {+0,-1,-1,-1,-1,-1,-1,+0},
+//            {+0,+0,+0,+0,+0,+0,+0,+0},
+//            {+0,+0,+0,+1,+0,+0,+0,+1},
+//            {+0,+0,+0,+1,+1,+1,+1,+0},
+//            {+0,+0,+0,+1,+1,+0,+0,+1},
+//            {+0,+0,+0,+1,+0,+0,+0,+1},
+//            {+0,+0,+0,+0,+0,+0,+0,+0},
+//            {+0,-1,-1,-1,-1,-1,-1,+0}
+//        };            
+//        GameStatus gs2 = new GameStatus(matrix2);
+//        System.out.println(gs2.toString());
+//        System.out.println(gs2.getPos(7, 2));
+//        System.out.println("heuristica: "+gs.getHeuristica());
+//        System.out.println("=========================================================");
+//        
+//        
         int matrix3[][] = 
         new int[][] {
             {+0,-1,-1,-1,-1,-1,-1,+0},
-            {+0,+0,+0,+0,+0,+0,+0,+0},
+            {+0,+0,+0,+1,+0,+0,+0,+0},
             {+0,+0,+0,+1,+0,+0,+0,+1},
-            {+0,+0,+0,+1,+1,+1,+0,+1},
+            {+1,+0,+0,+1,+1,+1,+0,+1},
             {+0,+0,+0,+1,+1,+0,+0,+1},
             {+0,+0,+0,+1,+0,+0,+0,+1},
             {+0,+0,+0,+0,+0,+0,+0,+0},
             {+0,-1,-1,-1,-1,-1,-1,+0}
         };            
-        GameStatus gs3 = new GameStatus(matrix3);
+        //GameStatus gs3 = new GameStatus(matrix3);
+        ElMeuStatus gs3 = new ElMeuStatus(matrix3);
         System.out.println(gs3.toString());
         System.out.println(gs3.getPos(7, 2));
-        System.out.println("heuristica: "+gs.getHeuristica(gs3));
-        System.out.println("Piezas centro: " + gs.retornaCentro().toString());
-        System.out.println("Size euclidiana: " + gs.pintaSize());
-        System.out.println("Euclidianas: " + gs.retornaEuclidiana());
+        System.out.println("heuristica: "+ gs3.getHeuristica());
+        System.out.println("Piezas centro: " + gs3.retornaCentro().toString());
+        System.out.println("Size euclidiana: " + gs3.pintaSize());
+        System.out.println("Euclidianas: " + gs3.retornaEuclidiana());
         System.out.println("=========================================================");
     }
    

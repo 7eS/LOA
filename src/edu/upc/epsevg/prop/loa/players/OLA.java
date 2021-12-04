@@ -18,10 +18,36 @@ import java.util.logging.Logger;
  * @author bernat
  */
 public class OLA implements IPlayer, IAuto {
+    
+    public class Tuple {
+        private Point from;
+        private double valor;
+        
+        public Tuple() {
+            
+        }
+        
+        public Tuple(Point p, double v){
+            from = p;
+            valor = v;
+        }
 
+        @Override
+        public String toString() {
+            return '\n' + "Tuple{" + "from=" + from +  "valor=" + valor + '}';
+        }
+    }
+    
+    //Arrays necesarias para los cálculos eurísticos.
+    private ArrayList<Point> piezasCentro;
+    private ArrayList<Point> piezasFuera;
+    private ArrayList<Tuple> euclidianas = new ArrayList();
+    
+    //Variables globales
     private String name;
     private GameStatus s;
     private int prof;
+    private int nodesExp = 0;
 
 
     public OLA(String name, int prof) {
@@ -76,11 +102,10 @@ public class OLA implements IPlayer, IAuto {
                         GameStatus saux = new GameStatus(s);
                         
                         saux.movePiece(from, to);
-
+                        
                         int valorNou = movMin(saux, pprof - 1, alpha, beta, CellType.opposite(color));
-                        //int valorNou = 4;
-                        if (valorNou > valor) {
-                            System.out.println("valorNou: "+ valorNou);
+                        
+                        if (valorNou >= valor) {
                             valor = valorNou;
                             fromAnt = from;
                             pos = to;
@@ -89,8 +114,8 @@ public class OLA implements IPlayer, IAuto {
                 }
             }
         }
-     
-        return new Move(fromAnt, pos, 0, 0, SearchType.MINIMAX);
+        
+        return new Move(fromAnt, pos, nodesExp, prof, SearchType.MINIMAX);
     }
 
     /**
@@ -120,16 +145,22 @@ public class OLA implements IPlayer, IAuto {
      * comprobadas.
      */
     public int movMin(GameStatus s, int pprof, int alpha, int beta, CellType color) {
+        nodesExp++;
+//        if (s.GetWinner() == CellType.PLAYER1) {
+//           // System.out.println("Guanya MovMin: " + CellType.PLAYER1.toString());
+//            return Integer.MAX_VALUE;
+//        } else if (s.GetWinner() == CellType.PLAYER2) {
+//           // System.out.println("Guanya MovMin: " + CellType.PLAYER2.toString());
+//            return Integer.MIN_VALUE;
+//        } else if (pprof == 0) {
+//            return getHeuristica(s, s.getCurrentPlayer());
+//        }
 
-        if (s.GetWinner() == CellType.PLAYER1) {
-            System.out.println("Guanya MovMin: " + CellType.PLAYER1.toString());
+        if(s.GetWinner() == CellType.opposite(color)){
             return Integer.MAX_VALUE;
-        } else if (s.GetWinner() == CellType.PLAYER2) {
-            System.out.println("Guanya MovMin: " + CellType.PLAYER2.toString());
-            return Integer.MIN_VALUE;
-        } else if (pprof == 0) {
-            return 0;
-            // Funció heurística
+        }
+        else if(pprof == 0){
+            return getHeuristica(s, CellType.opposite(color));
         }
 
         int value = Integer.MAX_VALUE;
@@ -189,16 +220,22 @@ public class OLA implements IPlayer, IAuto {
      * comprobadas.
      */
     public int movMax(GameStatus s, int pprof, int alpha, int beta, CellType color) {
+        nodesExp++;
+//        if (s.GetWinner() == CellType.PLAYER1) {
+//            //System.out.println("Guanya MovMax: " + CellType.PLAYER1.toString());
+//            return Integer.MAX_VALUE;
+//        } else if (s.GetWinner() == CellType.PLAYER2) {
+//            //System.out.println("Guanya MovMax: " + CellType.PLAYER2.toString());
+//            return Integer.MIN_VALUE;
+//        } else if (pprof == 0) {
+//            return getHeuristica(s, s.getCurrentPlayer());
+//        }
 
-        if (s.GetWinner() == CellType.PLAYER1) {
-            System.out.println("Guanya MovMax: " + CellType.PLAYER1.toString());
-            return Integer.MAX_VALUE;
-        } else if (s.GetWinner() == CellType.PLAYER2) {
-            System.out.println("Guanya MovMax: " + CellType.PLAYER2.toString());
+        if(s.GetWinner() == CellType.opposite(color)){
             return Integer.MIN_VALUE;
-        } else if (pprof == 0) {
-            return 0;
-            // Funció heurística
+        }
+        else if(pprof == 0){
+            return getHeuristica(s, CellType.opposite(color));
         }
 
         int value = Integer.MIN_VALUE;
@@ -240,8 +277,68 @@ public class OLA implements IPlayer, IAuto {
         return value;
     }
     
-    public int Heurística(GameStatus s) {
-        return 0;
+    public int getHeuristica(GameStatus gs, CellType color) {
+        
+         int quantes = gs.getNumberOfPiecesPerColor(color);
+         Point from = new Point(0,0);
+         
+         int cont  = 0;
+         double maximHeur = -100000;
+         
+         piezasCentro = new ArrayList();
+         piezasFuera = new ArrayList();
+         
+         for(int i = 0; i< quantes; i++) {
+             from = gs.getPiece(color, i);
+             if(comprovaX(from) && comprovaY(from)) {
+                 piezasCentro.add(from);
+                 cont++;
+             }
+             else {
+                 double valueEucl = Euclidiana(from, new Point(4,4));
+                 if(maximHeur < valueEucl) maximHeur = valueEucl;
+                 piezasFuera.add(from);
+             }
+         }
+//         for(int i = 0; i < piezasFuera.size(); i++){
+//            from = piezasFuera.get(i);
+//            Tuple min = new Tuple();
+//            double minim = 10000;
+//
+//            for(int j = 0; j < piezasCentro.size(); j++) {
+//
+//                Point piezaCentro = piezasCentro.get(j);
+//
+//                double eucl = Euclidiana(from, piezaCentro );
+//
+//                if(minim > eucl) {
+//                    Tuple p = new Tuple (from, eucl);
+//                    min = p;
+//                    minim = eucl;
+//                }
+//           }
+//           if(min.from != null){
+//               if(maximHeur < minim ) maximHeur = minim;
+//               euclidianas.add(min);
+//           }
+//        }
+        return piezasFuera.size() + (int) maximHeur;
+    }
+    
+    public double Euclidiana(Point from, Point center) {
+        
+        double calx = Math.pow(from.x - center.x, 2);
+        double caly = Math.pow(from.y - center.y, 2);
+        
+        return Math.sqrt(calx + caly);
+    }
+    
+    public boolean comprovaX(Point from) {
+        return from.x >= 2 && from.x <= 5;
+    }
+    
+    public boolean comprovaY(Point from) {
+        return from.y >= 2 && from.y <= 5;
     }
 }
 
