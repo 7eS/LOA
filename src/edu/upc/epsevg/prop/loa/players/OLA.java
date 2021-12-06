@@ -272,7 +272,9 @@ public class OLA implements IPlayer, IAuto {
                 subconjunto = new ArrayList();
         ArrayList <Point> puntosFuera = new ArrayList();
        
-        // Calculamos cuál es el subconjunto mayor.
+        // Calculamos cuál es el subconjunto mayor y obtenemos todas 
+        // las fichas que lo forman
+     
         for(int i = 0; i < qn; i++) {
             
                 subconjunto = creaSubConjunto(gs, gs.getPiece(color, i));
@@ -280,8 +282,7 @@ public class OLA implements IPlayer, IAuto {
                 if(subconjunto.size() > value) {
                     value = subconjunto.size();
                     subconjMayor = subconjunto;
-                }
-                
+                }                
         }
         
         // Excluimos los puntos del subconjunto para mover los otros.
@@ -321,6 +322,9 @@ public class OLA implements IPlayer, IAuto {
          piezasCentro = new ArrayList();
          piezasFuera = new ArrayList();
          
+         // Observamos cuantas fichas hay alrededor de la futura pos.
+         // La que devuelva un resultado mayor se guarda en maximHeur
+         
          for(int i = 0; i< quantes; i++) {
              from = gs.getPiece(color, i);
              int valor = mayorSubconjunto(gs, color, from);
@@ -329,7 +333,7 @@ public class OLA implements IPlayer, IAuto {
                  maximHeur = valor;
              }
          }
-         
+         // Hacemos lo mismo con las fichas del rival
          for(int i = 0; i< gs.getNumberOfPiecesPerColor(CellType.opposite(color)); i++) {
              from = gs.getPiece(CellType.opposite(color), i);
              int valor = mayorSubconjunto(gs, CellType.opposite(color), from);

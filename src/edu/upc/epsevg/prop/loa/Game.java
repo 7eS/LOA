@@ -22,7 +22,7 @@ public class Game {
             public void run() {
                 
                 //IPlayer player1 = new HumanPlayer("Octopus");
-                IPlayer player1 = new OLA("OLA", 4);
+                IPlayer player1 = new OLA("OLA", 6);
                 //IPlayer player1 = new RandomPlayer("Crazy Chris");
                 IPlayer player2 = new RandomPlayer("Crazy Ivan");
                 //IPlayer player2 = new HumanPlayer("Octopus");
