@@ -44,11 +44,9 @@ public class OLA implements IPlayer, IAuto {
     
     //Variables globales
     private String name;
-    private GameStatus s;
     private int prof;
     private int nodesExp = 0;
-
-
+    
     public OLA(String name, int prof) {
         this.name = name;
         this.prof = prof;
@@ -80,11 +78,12 @@ public class OLA implements IPlayer, IAuto {
         Point to = new Point(0, 0);
 
         CellType color = s.getCurrentPlayer();
-        this.s = s;
         int qn = s.getNumberOfPiecesPerColor(color);
         int index = 0;
 
         ArrayList<Point> moviments = new ArrayList<>();
+        
+        Move movimiento = new Move(fromAnt, to, 0, 0, SearchType.MINIMAX);
 
         // Obtenim les peces i la seva ubicació
         for (int q = 0; q < qn; q++) {
@@ -107,15 +106,14 @@ public class OLA implements IPlayer, IAuto {
 
                         if (valorNou >= valor) {
                             valor = valorNou;
-                            fromAnt = from;
-                            pos = to;
+                            movimiento = new Move(from, to, nodesExp, prof, SearchType.MINIMAX);
                         }
                     }
                 }
             }
         }
         
-        return new Move(fromAnt, pos, nodesExp, prof, SearchType.MINIMAX);
+        return movimiento;
     }
 
     /**
@@ -151,7 +149,9 @@ public class OLA implements IPlayer, IAuto {
             return Integer.MAX_VALUE;
         }
         else if(pprof == 0){
-            return getHeuristica(s, CellType.opposite(color));
+            // Comparación entre heurística nuestra y la del rival para ver 
+            //quien tiene ventaja
+            return getHeuristicaAlter(s, color) - getHeuristicaAlter(s, CellType.opposite(color));
         }
 
         int value = Integer.MAX_VALUE;
@@ -217,7 +217,9 @@ public class OLA implements IPlayer, IAuto {
             return Integer.MIN_VALUE;
         }
         else if(pprof == 0){
-            return getHeuristica(s, CellType.opposite(color));
+            // Comparación entre heurística nuestra y la del rival para ver 
+            //quien tiene ventaja
+            return getHeuristicaAlter(s, CellType.opposite(color)) - getHeuristicaAlter(s,color);
         }
 
         int value = Integer.MIN_VALUE;
@@ -258,6 +260,56 @@ public class OLA implements IPlayer, IAuto {
 
         }
         return value;
+    }
+    
+    public int getHeuristicaAlter(GameStatus gs, CellType color) {
+        
+        int qn = gs.getNumberOfPiecesPerColor(color);
+        
+        int value = Integer.MIN_VALUE;
+        
+        ArrayList <Point> subconjMayor = new ArrayList(), 
+                subconjunto = new ArrayList();
+        ArrayList <Point> puntosFuera = new ArrayList();
+       
+        // Calculamos cuál es el subconjunto mayor.
+        for(int i = 0; i < qn; i++) {
+            
+                subconjunto = creaSubConjunto(gs, gs.getPiece(color, i));
+                
+                if(subconjunto.size() > value) {
+                    value = subconjunto.size();
+                    subconjMayor = subconjunto;
+                }
+                
+        }
+        
+        // Excluimos los puntos del subconjunto para mover los otros.
+        for(int i = 0; i< qn; i++) {
+            Point puntoAux = gs.getPiece(color, i);
+            if(!subconjMayor.contains(puntoAux)) puntosFuera.add(puntoAux);
+        }
+        
+        int sumaEucl = 0;
+        
+        // Hacemos una suma de todas las euclidianas respecto al conjunto mayor
+        // para poder saber cuánto de dispersas están las fichas.
+        for(int i = 0; i < puntosFuera.size(); i++) {
+            double minimEucl = Integer.MAX_VALUE;
+            for(int j = 0; j < subconjMayor.size(); j++) {
+                double eucl = Euclidiana(puntosFuera.get(i), subconjMayor.get(j));
+                
+                if(minimEucl > eucl) minimEucl = eucl;
+            }
+            
+            sumaEucl += minimEucl;
+        }
+        
+        // Caso base= si la sumaEucl es igual a la size de puntosFuera.size()
+        // significa que están todas las fichas juntas y por tanto hemos ganado.
+        if(sumaEucl == puntosFuera.size()) return Integer.MAX_VALUE;
+        
+        return sumaEucl;
     }
     
     public int getHeuristica(GameStatus gs, CellType color) {

@@ -57,6 +57,13 @@ public class ElMeuStatus extends GameStatus {
         return center;
     }
     
+    public ArrayList grupoMayor(){
+        
+        
+        
+        return new ArrayList();
+    }
+    
     public int calculCenterHeur(GameStatus gs, CellType color) {
         
          int quantes = gs.getNumberOfPiecesPerColor(color);
