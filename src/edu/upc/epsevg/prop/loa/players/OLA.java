@@ -8,9 +8,6 @@ import edu.upc.epsevg.prop.loa.Move;
 import edu.upc.epsevg.prop.loa.SearchType;
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Jugador aleatori
@@ -19,42 +16,20 @@ import java.util.logging.Logger;
  */
 public class OLA implements IPlayer, IAuto {
     
-    public class Tuple {
-        private Point from;
-        private double valor;
-        
-        public Tuple() {
-            
-        }
-        
-        public Tuple(Point p, double v){
-            from = p;
-            valor = v;
-        }
-
-        @Override
-        public String toString() {
-            return '\n' + "Tuple{" + "from=" + from +  "valor=" + valor + '}';
-        }
-    }
-    
-    //Arrays necesarias para los cálculos eurísticos.
-    private ArrayList<Point> piezasCentro, piezasFuera;
-    private ArrayList<Tuple> euclidianas = new ArrayList();
-    
     //Variables globales
-    private String name;
     private int prof;
-    private int nodesExp = 0;
+    private int nodesExp;
+    private boolean tout;
     
-    public OLA(String name, int prof) {
-        this.name = name;
-        this.prof = prof;
+    public OLA() {
+        nodesExp = 0;
+        tout = false;
+        prof = 0;
     }
 
     @Override
     public void timeout() {
-        // Nothing to do! I'm so fast, I never timeout 8-)
+       tout = true;
     }
 
     /**
@@ -66,52 +41,66 @@ public class OLA implements IPlayer, IAuto {
      */
     @Override
     public Move move(GameStatus s) {
-
+        
+        tout = false;
+         
         int valor = Integer.MIN_VALUE;
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
-        int pprof = prof;
 
-        Point fromAnt = new Point(0,0);
-        Point pos = new Point(0, 0);
         Point from = new Point(0, 0);
         Point to = new Point(0, 0);
 
         CellType color = s.getCurrentPlayer();
         int qn = s.getNumberOfPiecesPerColor(color);
-        int index = 0;
 
-        ArrayList<Point> moviments = new ArrayList<>();
+        ArrayList<Point> moviments;
         
-        Move movimiento = new Move(fromAnt, to, 0, 0, SearchType.MINIMAX);
+        Move movimiento = new Move(from, to, 0, 0, SearchType.MINIMAX);
 
         // Obtenim les peces i la seva ubicació
-        for (int q = 0; q < qn; q++) {
-            from = s.getPiece(color, q);
-            // Per cada peça obtenim els seus moviments possibles
-            moviments = (s.getMoves(from));
+        
+        while(!tout){
             
-            if (moviments != null) {
-                for (int qt = 0; qt < moviments.size(); qt++) {
-                    to = moviments.remove(0);
+            prof += 1;
+            
+            System.out.println("Profundidad: " + prof);
+            
+            for (int q = 0; q < qn; q++) {
+                from = s.getPiece(color, q);
+                // Per cada peça obtenim els seus moviments possibles
+                moviments = (s.getMoves(from));
 
-                    //fusion de minimax y move
-                    if (!s.isGameOver()) {
+                if (moviments != null) {
+                    for (int qt = 0; qt < moviments.size(); qt++) {
+                        to = moviments.remove(0);
 
-                        GameStatus saux = new GameStatus(s);
+                        //fusion de minimax y move
+                        if (!s.isGameOver()) {
 
-                        saux.movePiece(from, to);
+                            GameStatus saux = new GameStatus(s);
 
-                        int valorNou = movMin(saux, pprof - 1, alpha, beta, CellType.opposite(color));
+                            saux.movePiece(from, to);
+                            
+                            if(tout){
+                                prof = 0;
+                                return movimiento;
+                            }
 
-                        if (valorNou >= valor) {
-                            valor = valorNou;
-                            movimiento = new Move(from, to, nodesExp, prof, SearchType.MINIMAX);
+                            int valorNou = movMin(saux, prof - 1, alpha, beta, CellType.opposite(color));
+
+                            if (valorNou >= valor) {
+                                valor = valorNou;
+                                movimiento = new Move(from, to, nodesExp, prof, SearchType.MINIMAX);
+                            }
                         }
                     }
                 }
             }
         }
+        
+        // Reiniciamos la profundidad 
+        prof = 0;
         
         return movimiento;
     }
@@ -122,7 +111,7 @@ public class OLA implements IPlayer, IAuto {
      */
     @Override
     public String getName() {
-        return "Minimax(" + name + ")";
+        return "Minimax(OLA)";
     }
 
     /**
@@ -144,7 +133,13 @@ public class OLA implements IPlayer, IAuto {
      */
     public int movMin(GameStatus s, int pprof, int alpha, int beta, CellType color) {
         nodesExp++;
-
+        
+        // Caso base: timeout es true
+        if(tout){
+            prof = 0;
+            return 0;
+        }
+        
         if(s.GetWinner() == color){
             return Integer.MAX_VALUE;
         }
@@ -180,11 +175,11 @@ public class OLA implements IPlayer, IAuto {
                         value = Math.min(value, movMax(saux, pprof - 1, 
                                 alpha, beta, CellType.opposite(color)));
                         
+                        beta = Math.min(value, beta);
+                        
                         if (alpha >= beta) {
                             return value;
                         }
-                        
-                        beta = Math.min(value, beta);
                     }
                 }
             }
@@ -211,12 +206,19 @@ public class OLA implements IPlayer, IAuto {
      * comprobadas.
      */
     public int movMax(GameStatus s, int pprof, int alpha, int beta, CellType color) {
+        
         nodesExp++;
-
+        
+        // Caso base: timeout es true
+        if(tout){
+            prof = 0;
+            return 0;
+        }
+        
         if(s.GetWinner() == color){
             return Integer.MIN_VALUE;
         }
-        else if(pprof == 0){
+        else if(pprof == 0 || tout){
             // Comparación entre heurística nuestra y la del rival para ver 
             //quien tiene ventaja
             return getHeuristicaAlter(s, CellType.opposite(color)) - getHeuristicaAlter(s,color);
@@ -249,11 +251,11 @@ public class OLA implements IPlayer, IAuto {
                         value = Math.max(value, movMin(saux, pprof - 1, 
                                 alpha, beta, CellType.opposite(color)));
                         
+                        alpha = Math.max(value, alpha);
+                        
                         if (alpha >= beta) {
                             return value;
                         }
-                        
-                        alpha = Math.max(value, alpha);
                     }
                 }
             }
@@ -311,37 +313,7 @@ public class OLA implements IPlayer, IAuto {
         
         return sumaEucl;
     }
-    
-    public int getHeuristica(GameStatus gs, CellType color) {
-        
-         int quantes = gs.getNumberOfPiecesPerColor(color);
-         Point from = new Point(0,0);
-         int maximHeur = -100000, maximHeur2 = -100000;
-         
-         piezasCentro = new ArrayList();
-         piezasFuera = new ArrayList();
-         
-         for(int i = 0; i< quantes; i++) {
-             from = gs.getPiece(color, i);
-             int valor = mayorSubconjunto(gs, color, from);
-             
-             if(maximHeur < valor) {
-                 maximHeur = valor;
-             }
-         }
-         
-         for(int i = 0; i< gs.getNumberOfPiecesPerColor(CellType.opposite(color)); i++) {
-             from = gs.getPiece(CellType.opposite(color), i);
-             int valor = mayorSubconjunto(gs, CellType.opposite(color), from);
-             
-             if(maximHeur2 < valor) {
-                 maximHeur2 = valor;
-             }
-         }
-         
-         return maximHeur - maximHeur2;
-    }
-    
+
     public double Euclidiana(Point from, Point center) {
         
         double calx = Math.pow(from.x - center.x, 2);
@@ -410,39 +382,6 @@ public class OLA implements IPlayer, IAuto {
         }
         
         return puntos;
-    }
-    
-    public int mayorSubconjunto(GameStatus s, CellType color, Point from) {
-        
-        Point to;
-        ArrayList<Point> moviments, subconjunto;
-        
-        int qn = s.getNumberOfPiecesPerColor(color);
-        int valor = 0;
-        
-        subconjunto = creaSubConjunto(s, from);
-        
-        if((double)subconjunto.size()/qn < 0.25) {
-            valor = 5;
-        }
-        
-        else if((double)subconjunto.size()/qn < 0.5) {
-            valor = 10;
-        }
-        
-        else if((double)subconjunto.size()/qn < 0.75) {
-            valor = 15;
-        }
-        
-        else if((double)subconjunto.size()/qn < 1.0) {
-            valor = 20;
-        }
-        
-        else if((double)subconjunto.size()/qn == 1.0) {
-            valor = 10000;
-        }
-        
-        return valor;
     }
 }
 
