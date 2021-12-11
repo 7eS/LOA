@@ -25,8 +25,8 @@ public class Game {
 
                 IPlayer player1 = new OLA();
                 //IPlayer player2 = new RandomPlayer("Crazy Chris");
-                IPlayer player2 = new MCCloudPlayer();
-                //IPlayer player1 = new RandomPlayer("Crazy Chris");
+                //IPlayer player2 = new MCCloudPlayer();
+                IPlayer player2 = new RandomPlayer("Crazy Chris");
                 //IPlayer player2 = new HumanPlayer("Octopus");
                 new Board(player1 , player2, 4, Level.DIFFICULT);
              }

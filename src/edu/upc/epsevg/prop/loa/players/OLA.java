@@ -64,7 +64,7 @@ public class OLA implements IPlayer, IAuto {
             
             prof += 1;
             
-            System.out.println("Profundidad: " + prof);
+            //System.out.println("Profundidad: " + prof);
             
             for (int q = 0; q < qn; q++) {
                 from = s.getPiece(color, q);
@@ -82,13 +82,15 @@ public class OLA implements IPlayer, IAuto {
 
                             saux.movePiece(from, to);
                             
-                            if(tout){
-                                prof = 0;
-                                return movimiento;
-                            }
 
                             int valorNou = movMin(saux, prof - 1, alpha, beta, CellType.opposite(color));
-
+                            
+                            if(tout){
+                                prof = 0;
+                                System.out.println("heur: "+ valor);
+                                return movimiento;
+                            }
+                            
                             if (valorNou >= valor) {
                                 valor = valorNou;
                                 movimiento = new Move(from, to, nodesExp, prof, SearchType.MINIMAX);
@@ -99,7 +101,7 @@ public class OLA implements IPlayer, IAuto {
             }
         }
         
-        // Reiniciamos la profundidad 
+        // Reiniciamos la profundidad
         prof = 0;
         
         return movimiento;
@@ -135,10 +137,8 @@ public class OLA implements IPlayer, IAuto {
         nodesExp++;
         
         // Caso base: timeout es true
-        if(tout){
-            prof = 0;
-            return 0;
-        }
+        if(tout) return 0;
+       
         
         if(s.GetWinner() == color){
             return Integer.MAX_VALUE;
@@ -171,7 +171,10 @@ public class OLA implements IPlayer, IAuto {
 
                         GameStatus saux = new GameStatus(s);
                         saux.movePiece(from, to);
-
+                        
+                        // Pregunta Berni: Este if es necesario?
+                        if(tout) return 0;
+                        
                         value = Math.min(value, movMax(saux, pprof - 1, 
                                 alpha, beta, CellType.opposite(color)));
                         
@@ -210,10 +213,8 @@ public class OLA implements IPlayer, IAuto {
         nodesExp++;
         
         // Caso base: timeout es true
-        if(tout){
-            prof = 0;
-            return 0;
-        }
+        if(tout) return 0;
+        
         
         if(s.GetWinner() == color){
             return Integer.MIN_VALUE;
@@ -247,9 +248,12 @@ public class OLA implements IPlayer, IAuto {
 
                         GameStatus saux = new GameStatus(s);
                         saux.movePiece(from, to);
-
+ 
+                        if(tout) return 0;
+                        
                         value = Math.max(value, movMin(saux, pprof - 1, 
                                 alpha, beta, CellType.opposite(color)));
+                        
                         
                         alpha = Math.max(value, alpha);
                         
