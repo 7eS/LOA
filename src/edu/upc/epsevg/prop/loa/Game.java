@@ -22,9 +22,11 @@ public class Game {
             public void run() {
                 
                 //IPlayer player1 = new HumanPlayer("Octopus");
+
                 IPlayer player1 = new OLA();
                 //IPlayer player2 = new RandomPlayer("Crazy Chris");
                 IPlayer player2 = new MCCloudPlayer();
+                //IPlayer player1 = new RandomPlayer("Crazy Chris");
                 //IPlayer player2 = new HumanPlayer("Octopus");
                 new Board(player1 , player2, 4, Level.DIFFICULT);
              }

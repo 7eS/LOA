@@ -274,7 +274,9 @@ public class OLA implements IPlayer, IAuto {
                 subconjunto = new ArrayList();
         ArrayList <Point> puntosFuera = new ArrayList();
        
-        // Calculamos cuál es el subconjunto mayor.
+        // Calculamos cuál es el subconjunto mayor y obtenemos todas 
+        // las fichas que lo forman
+     
         for(int i = 0; i < qn; i++) {
             
                 subconjunto = creaSubConjunto(gs, gs.getPiece(color, i));
@@ -282,8 +284,7 @@ public class OLA implements IPlayer, IAuto {
                 if(subconjunto.size() > value) {
                     value = subconjunto.size();
                     subconjMayor = subconjunto;
-                }
-                
+                }                
         }
         
         // Excluimos los puntos del subconjunto para mover los otros.
