@@ -132,6 +132,9 @@ public class ElMeuStatus extends GameStatus {
         return s;
     }
     
+    
+    
+    
     public int pintaSize() {
         return euclidianas.size();
     }

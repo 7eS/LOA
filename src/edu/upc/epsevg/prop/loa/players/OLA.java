@@ -15,12 +15,12 @@ import java.util.ArrayList;
  * @author bernat
  */
 public class OLA implements IPlayer, IAuto {
-    
+
     //Variables globales
     private int prof;
     private int nodesExp;
     private boolean tout;
-    
+
     public OLA() {
         nodesExp = 0;
         tout = false;
@@ -29,7 +29,7 @@ public class OLA implements IPlayer, IAuto {
 
     @Override
     public void timeout() {
-       tout = true;
+        tout = true;
     }
 
     /**
@@ -41,9 +41,9 @@ public class OLA implements IPlayer, IAuto {
      */
     @Override
     public Move move(GameStatus s) {
-        
+
         tout = false;
-         
+
         int valor = Integer.MIN_VALUE;
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
@@ -55,17 +55,16 @@ public class OLA implements IPlayer, IAuto {
         int qn = s.getNumberOfPiecesPerColor(color);
 
         ArrayList<Point> moviments;
-        
-        Move movimiento = new Move(from, to, 0, 0, SearchType.MINIMAX);
+
+        Move movimiento = new Move(from, to, 0, 0, SearchType.MINIMAX_IDS);
+        Move movimientoDef = new Move(from, to, 0, 0, SearchType.MINIMAX_IDS);
 
         // Obtenim les peces i la seva ubicació
-        
-        while(!tout){
-            
+        while (!tout) {
+
             prof += 1;
-            
+
             //System.out.println("Profundidad: " + prof);
-            
             for (int q = 0; q < qn; q++) {
                 from = s.getPiece(color, q);
                 // Per cada peça obtenim els seus moviments possibles
@@ -81,15 +80,13 @@ public class OLA implements IPlayer, IAuto {
                             GameStatus saux = new GameStatus(s);
 
                             saux.movePiece(from, to);
-                            
 
-                            int valorNou = movMin(saux, prof - 1, alpha, beta, CellType.opposite(color));
                             
-                            if(tout){
-                                prof = 0;
-                                System.out.println("heur: "+ valor);
-                                return movimiento;
-                            }
+                            int valorNou = movMin(saux, prof - 1, alpha, beta, CellType.opposite(color));
+
+                            // parem el minimax
+                            if(tout)
+                                break;
                             
                             if (valorNou >= valor) {
                                 valor = valorNou;
@@ -99,12 +96,13 @@ public class OLA implements IPlayer, IAuto {
                     }
                 }
             }
+            if(tout) movimientoDef = movimiento;
         }
-        
+
         // Reiniciamos la profundidad
         prof = 0;
-        
-        return movimiento;
+        System.out.println("heur: " + valor);
+        return movimientoDef;
     }
 
     /**
@@ -135,15 +133,21 @@ public class OLA implements IPlayer, IAuto {
      */
     public int movMin(GameStatus s, int pprof, int alpha, int beta, CellType color) {
         nodesExp++;
-        
+
         // Caso base: timeout es true
-        if(tout) return 0;
-       
-        
-        if(s.GetWinner() == color){
-            return Integer.MAX_VALUE;
+        if (tout) {
+            return 0;
         }
-        else if(pprof == 0){
+
+        if (s.isGameOver()) {
+
+            if (s.GetWinner() == CellType.opposite(color)) {
+                System.out.println("possible guanyador: " + CellType.opposite(color));
+                return Integer.MAX_VALUE;
+            } else {
+                return Integer.MIN_VALUE;
+            }
+        } else if (pprof == 0) {
             // Comparación entre heurística nuestra y la del rival para ver 
             //quien tiene ventaja
             return getHeuristicaAlter(s, color) - getHeuristicaAlter(s, CellType.opposite(color));
@@ -171,15 +175,17 @@ public class OLA implements IPlayer, IAuto {
 
                         GameStatus saux = new GameStatus(s);
                         saux.movePiece(from, to);
-                        
-                        // Pregunta Berni: Este if es necesario?
-                        if(tout) return 0;
-                        
-                        value = Math.min(value, movMax(saux, pprof - 1, 
+
+                        // Pregunta: Este if es necesario?
+                        if (tout) {
+                            return 0;
+                        }
+
+                        value = Math.min(value, movMax(saux, pprof - 1,
                                 alpha, beta, CellType.opposite(color)));
-                        
+
                         beta = Math.min(value, beta);
-                        
+
                         if (alpha >= beta) {
                             return value;
                         }
@@ -209,66 +215,74 @@ public class OLA implements IPlayer, IAuto {
      * comprobadas.
      */
     public int movMax(GameStatus s, int pprof, int alpha, int beta, CellType color) {
-        
+
         nodesExp++;
-        
+
         // Caso base: timeout es true
-        if(tout) return 0;
-        
-        
-        if(s.GetWinner() == color){
-            return Integer.MIN_VALUE;
+        if (tout) {
+            return 0;
         }
-        else if(pprof == 0 || tout){
+
+        if (s.isGameOver()) {
+            if (s.GetWinner() == CellType.opposite(color)) {
+                System.out.println("possible guanyador: " + CellType.opposite(color));
+                return Integer.MIN_VALUE;
+            } else {
+                return Integer.MAX_VALUE;
+            }
+        }
+
+    else if(pprof == 0){
             // Comparación entre heurística nuestra y la del rival para ver 
             //quien tiene ventaja
-            return getHeuristicaAlter(s, CellType.opposite(color)) - getHeuristicaAlter(s,color);
-        }
+            return getHeuristicaAlter(s, CellType.opposite(color)) - getHeuristicaAlter(s, color);
+    }
 
-        int value = Integer.MIN_VALUE;
-        int qn = s.getNumberOfPiecesPerColor(color);
-        
-        Point from = new Point(0, 0);
-        Point to = new Point(0, 0);
+    int value = Integer.MIN_VALUE;
+    int qn = s.getNumberOfPiecesPerColor(color);
 
-        //ArrayList<Point> pendingPieces = new ArrayList<>();
-        ArrayList<Point> moviments = new ArrayList<>();
+    Point from = new Point(0, 0);
+    Point to = new Point(0, 0);
 
-        // Obtenim les peces i la seva ubicació
-        for (int q = 0; q < qn; q++) {
+    //ArrayList<Point> pendingPieces = new ArrayList<>();
+    ArrayList<Point> moviments = new ArrayList<>();
+
+    // Obtenim les peces i la seva ubicació
+    for (int q = 0;q< qn ;q++) {
             from = s.getPiece(color, q);
-            // Per cada peça obtenim els seus moviments possibles
-            moviments = (s.getMoves(from));
+        // Per cada peça obtenim els seus moviments possibles
+        moviments = (s.getMoves(from));
 
-            if (moviments != null) {
-                for (int qt = 0; qt < moviments.size(); qt++) {
-                    to = moviments.remove(0);
+        if (moviments != null) {
+            for (int qt = 0; qt < moviments.size(); qt++) {
+                to = moviments.remove(0);
 
-                    if (!s.isGameOver()) {
+                if (!s.isGameOver()) {
 
-                        GameStatus saux = new GameStatus(s);
-                        saux.movePiece(from, to);
- 
-                        if(tout) return 0;
-                        
-                        value = Math.max(value, movMin(saux, pprof - 1, 
-                                alpha, beta, CellType.opposite(color)));
-                        
-                        
-                        alpha = Math.max(value, alpha);
-                        
-                        if (alpha >= beta) {
-                            return value;
-                        }
+                    GameStatus saux = new GameStatus(s);
+                    saux.movePiece(from, to);
+
+                    if (tout) {
+                        return 0;
+                    }
+
+                    value = Math.max(value, movMin(saux, pprof - 1,
+                            alpha, beta, CellType.opposite(color)));
+
+                    alpha = Math.max(value, alpha);
+
+                    if (alpha >= beta) {
+                        return value;
                     }
                 }
             }
-
         }
-        return value;
+
     }
-    
-    public int getHeuristicaAlter(GameStatus gs, CellType color) {
+    return value ;
+}
+
+public int getHeuristicaAlter(GameStatus gs, CellType color) {
         
         int qn = gs.getNumberOfPiecesPerColor(color);
         
@@ -316,7 +330,7 @@ public class OLA implements IPlayer, IAuto {
         // significa que están todas las fichas juntas y por tanto hemos ganado.
         if(sumaEucl == puntosFuera.size()) return Integer.MAX_VALUE;
         
-        return sumaEucl;
+        return sumaEucl+subconjMayor.size();
     }
 
     public double Euclidiana(Point from, Point center) {
@@ -389,4 +403,3 @@ public class OLA implements IPlayer, IAuto {
         return puntos;
     }
 }
-
