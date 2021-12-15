@@ -6,7 +6,6 @@
 package edu.upc.epsevg.prop.loa;
 
 import edu.upc.epsevg.prop.loa.GameStatus;
-import edu.upc.epsevg.prop.loa.CellType;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -58,26 +57,36 @@ public class GameStatusTest {
 //        System.out.println("=========================================================");
 //        
 //        
-        int matrix3[][] = 
+//        int matrix3[][] = 
+//        new int[][] {
+//            {+0,-1,-1,-1,-1,-1,-1,+0},
+//            {+0,+0,+0,+1,+0,+0,+0,+0},
+//            {+0,+0,+0,+1,+0,+0,+0,+1},
+//            {+1,+0,+0,+1,+1,+1,+0,+1},
+//            {+0,+0,+0,+1,+1,+0,+0,+1},
+//            {+0,+0,+0,+1,+0,+0,+0,+1},
+//            {+0,+0,+0,+0,+0,+0,+0,+0},
+//            {+0,-1,-1,-1,-1,-1,-1,+0}
+//        };     
+
+         int matrix3[][] = 
         new int[][] {
-            {+0,-1,-1,-1,-1,-1,-1,+0},
-            {+0,+0,+0,+1,+0,+0,+0,+0},
-            {+0,+0,+0,+1,+0,+0,+0,+1},
-            {+1,+0,+0,+1,+1,+1,+0,+1},
-            {+0,+0,+0,+1,+1,+0,+0,+1},
-            {+0,+0,+0,+1,+0,+0,+0,+1},
+            {+0,-1,-1,+0,+0,+0,+0,+0},
+            {+0,+0,+1,+0,+0,+0,+0,+1},
+            {+0,+0,+1,+0,+0,+1,+0,+0},
             {+0,+0,+0,+0,+0,+0,+0,+0},
-            {+0,-1,-1,-1,-1,-1,-1,+0}
-        };            
-        //GameStatus gs3 = new GameStatus(matrix3);
+            {+0,-1,+0,+0,+0,+0,+0,+0},
+            {+0,+0,+0,+0,+0,+0,+0,+0},
+            {+0,+0,+0,+0,+0,+0,+0,+0},
+            {+0,-1,+0,+0,+0,+0,+0,+0}
+        }; 
+        
         ElMeuStatus gs3 = new ElMeuStatus(matrix3);
+        System.out.println("Pieza: " + gs3.getPiece(CellType.PLAYER1, 0).toString());
         System.out.println(gs3.toString());
-        System.out.println(gs3.getPos(7, 2));
-        System.out.println("heuristica: "+ gs3.getHeuristica());
-        System.out.println("Piezas centro: " + gs3.retornaCentro().toString());
-        System.out.println("Size euclidiana: " + gs3.pintaSize());
-        System.out.println("Euclidianas: " + gs3.retornaEuclidiana());
-        System.out.println("=========================================================");
+        System.out.println("Size mayor: " + gs3.grupoMayor(CellType.PLAYER1));
+        System.out.println("Grupo mayor: " + gs3.grupos);
+        System.out.println("Heur: " + gs3.getHeuristicaAlter(gs3, CellType.PLAYER1));
     }
    
 }

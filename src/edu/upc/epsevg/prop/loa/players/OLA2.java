@@ -14,14 +14,14 @@ import java.util.ArrayList;
  *
  * @author bernat
  */
-public class OLA implements IPlayer, IAuto {
+public class OLA2 implements IPlayer, IAuto {
     
     //Variables globales
     private int prof;
     private int nodesExp;
     private boolean tout;
     
-    public OLA() {
+    public OLA2() {
         nodesExp = 0;
         tout = false;
         prof = 0;
@@ -113,7 +113,7 @@ public class OLA implements IPlayer, IAuto {
         // Reiniciamos la profundidad
         prof = 0;
         
-        System.out.println("Heur: " + valor);
+        System.out.println("Heur2: " + valor);
         return movimiento_def;
     }
 
@@ -161,7 +161,7 @@ public class OLA implements IPlayer, IAuto {
         else if(pprof == 0){
             // Comparación entre heurística nuestra y la del rival para ver 
             //quien tiene ventaja
-            return getHeuristicaDef(s, color) - getHeuristicaDef(s, CellType.opposite(color));
+            return getHeuristicaAlter(s, color) - getHeuristicaAlter(s, CellType.opposite(color));
         }
 
         int value = Integer.MAX_VALUE;
@@ -243,7 +243,7 @@ public class OLA implements IPlayer, IAuto {
         else if(pprof == 0 || tout){
             // Comparación entre heurística nuestra y la del rival para ver 
             //quien tiene ventaja
-            return getHeuristicaDef(s, CellType.opposite(color)) - getHeuristicaDef(s,color);
+            return getHeuristicaAlter(s, CellType.opposite(color)) - getHeuristicaAlter(s,color);
         }
 
         int value = Integer.MIN_VALUE;

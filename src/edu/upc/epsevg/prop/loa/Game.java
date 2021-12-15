@@ -11,7 +11,7 @@ import javax.swing.SwingUtilities;
  * @author bernat
  */
 public class Game {
-        /**
+     /**
      * @param args
      */
     public static void main(String[] args) {
@@ -25,10 +25,11 @@ public class Game {
 
                 IPlayer player1 = new OLA();
                 //IPlayer player2 = new RandomPlayer("Crazy Chris");
-                //IPlayer player2 = new MCCloudPlayer();
-                IPlayer player2 = new RandomPlayer("Crazy Chris");
+                IPlayer player2 = new MCCloudPlayer();
+                //IPlayer player2 = new RandomPlayer("Crazy Chris");
                 //IPlayer player2 = new HumanPlayer("Octopus");
-                new Board(player1 , player2, 4, Level.DIFFICULT);
+               // IPlayer player2 = new OLA2();
+                new Board(player1 , player2, 10, Level.DIFFICULT);
              }
         });
     }
