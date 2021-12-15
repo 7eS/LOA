@@ -196,5 +196,4 @@ public class ElMeuStatus extends GameStatus {
         
         return puntos;
     }
-    
 }
