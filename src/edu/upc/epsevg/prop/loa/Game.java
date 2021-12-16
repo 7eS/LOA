@@ -23,11 +23,11 @@ public class Game {
                 
                 IPlayer player1 = new OLA();
                 //IPlayer player2 = new RandomPlayer("Crazy Chris");
-                //IPlayer player2 = new MCCloudPlayer();
+                IPlayer player2 = new MCCloudPlayer();
                 //IPlayer player2 = new RandomPlayer("Crazy Chris");
                 //IPlayer player2 = new HumanPlayer("Octopus");
-                IPlayer player2 = new OLA2();
-                new Board(player1 , player2, 4, Level.DIFFICULT);
+               // IPlayer player2 = new OLA2();
+                new Board(player1 , player2, 10, Level.DIFFICULT);
              }
         });
     }

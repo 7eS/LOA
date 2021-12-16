@@ -20,6 +20,7 @@ public class OLA implements IPlayer, IAuto {
     private int prof;
     private int nodesExp;
     private boolean tout;
+    private CellType color;
 
     public OLA() {
         nodesExp = 0;
@@ -51,7 +52,7 @@ public class OLA implements IPlayer, IAuto {
         Point from = new Point(0, 0);
         Point to = new Point(0, 0);
 
-        CellType color = s.getCurrentPlayer();
+        color = s.getCurrentPlayer();
         int qn = s.getNumberOfPiecesPerColor(color);
 
         ArrayList<Point> moviments;
@@ -84,6 +85,10 @@ public class OLA implements IPlayer, IAuto {
 
                             saux.movePiece(from, to);
                             
+                            if(saux.GetWinner() == color){
+                                return new Move(from, to, nodesExp, prof, SearchType.MINIMAX_IDS);
+                            }
+                            
                             int valorNou = movMin(saux, prof - 1, alpha, beta, CellType.opposite(color));
 
                             // parem el minimax
@@ -91,7 +96,7 @@ public class OLA implements IPlayer, IAuto {
                             
                             if (valorNou >= valor) {
                                 valor = valorNou;
-                                movimiento = new Move(from, to, nodesExp, prof, SearchType.MINIMAX);
+                                movimiento = new Move(from, to, nodesExp, prof, SearchType.MINIMAX_IDS);
                             }
                         }
                     }
@@ -157,7 +162,8 @@ public class OLA implements IPlayer, IAuto {
         } else if (pprof == 0) {
             // Comparación entre heurística nuestra y la del rival para ver 
             //quien tiene ventaja
-            return getHeuristicaDef(s, color) - getHeuristicaDef(s, CellType.opposite(color));
+            return getHeuristicaDef(s, color) - getHeuristicaDef(s, CellType.opposite(color)); 
+                   // + (getHeuristicaAlter(s, color) - getHeuristicaAlter(s,CellType.opposite(color)));
         }
 
         int value = Integer.MAX_VALUE;
@@ -329,7 +335,6 @@ public class OLA implements IPlayer, IAuto {
             
             sumaEucl += minimEucl;
         }
-        
         // Caso base= si la sumaEucl es igual a la size de puntosFuera.size()
         // significa que están todas las fichas juntas y por tanto hemos ganado.
         if(sumaEucl == puntosFuera.size()){
@@ -464,8 +469,6 @@ public class OLA implements IPlayer, IAuto {
         ArrayList <Point> puntosFuera = new ArrayList();
         
         ArrayList <Point> grupoMaxi = grupoMayor(gs, color);
-       
-       
         
         // Excluimos los puntos del subconjunto para mover los otros.
         for(int i = 0; i< qn; i++) {
@@ -495,14 +498,11 @@ public class OLA implements IPlayer, IAuto {
         // significa que están todas las fichas juntas y por tanto hemos ganado.
         
         if(sumaEucl == puntosFuera.size()){
-           // System.out.println("Caso base Heurística: " + color);
             return 100;
         }
         
-        return sumaEucl + grupoMaxi.size();
+        return grupoMaxi.size() + sumaEucl;
     }
-    
-    
     
     // Función que agrupa todas las heuristicas y devuelve el resultado final
     // Se calculan los arrays necesarios en esta y se pasa por parametro.

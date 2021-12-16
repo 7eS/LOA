@@ -113,7 +113,6 @@ public class OLA2 implements IPlayer, IAuto {
         // Reiniciamos la profundidad
         prof = 0;
         
-        System.out.println("Heur2: " + valor);
         return movimiento_def;
     }
 
