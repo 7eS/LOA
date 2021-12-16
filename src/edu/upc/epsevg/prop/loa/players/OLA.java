@@ -243,51 +243,50 @@ public class OLA implements IPlayer, IAuto {
             return getHeuristicaDef(s, CellType.opposite(color)) - getHeuristicaDef(s,color);
         }
 
-    int value = Integer.MIN_VALUE;
-    int qn = s.getNumberOfPiecesPerColor(color);
+        int value = Integer.MIN_VALUE;
+        int qn = s.getNumberOfPiecesPerColor(color);
 
-    Point from = new Point(0, 0);
-    Point to = new Point(0, 0);
+        Point from = new Point(0, 0);
+        Point to = new Point(0, 0);
 
-    //ArrayList<Point> pendingPieces = new ArrayList<>();
-    ArrayList<Point> moviments = new ArrayList<>();
+        //ArrayList<Point> pendingPieces = new ArrayList<>();
+        ArrayList<Point> moviments = new ArrayList<>();
 
-    // Obtenim les peces i la seva ubicació
-    for (int q = 0;q< qn ;q++) {
-            from = s.getPiece(color, q);
-        // Per cada peça obtenim els seus moviments possibles
-        moviments = (s.getMoves(from));
+        // Obtenim les peces i la seva ubicació
+        for (int q = 0;q< qn ;q++) {
+                from = s.getPiece(color, q);
+            // Per cada peça obtenim els seus moviments possibles
+            moviments = (s.getMoves(from));
 
-        if (moviments != null) {
-            for (int qt = 0; qt < moviments.size(); qt++) {
-                to = moviments.remove(0);
+            if (moviments != null) {
+                for (int qt = 0; qt < moviments.size(); qt++) {
+                    to = moviments.remove(0);
 
-                if (!s.isGameOver()) {
+                    if (!s.isGameOver()) {
 
-                    GameStatus saux = new GameStatus(s);
-                    saux.movePiece(from, to);
+                        GameStatus saux = new GameStatus(s);
+                        saux.movePiece(from, to);
 
-                    if (tout) {
-                        return 0;
-                    }
+                        if (tout) {
+                            return 0;
+                        }
 
-                    value = Math.max(value, movMin(saux, pprof - 1,
-                            alpha, beta, CellType.opposite(color)));
+                        value = Math.max(value, movMin(saux, pprof - 1,
+                                alpha, beta, CellType.opposite(color)));
 
-                    alpha = Math.max(value, alpha);
+                        alpha = Math.max(value, alpha);
 
-                    if (alpha >= beta) {
-                        return value;
+                        if (alpha >= beta) {
+                            return value;
+                        }
                     }
                 }
             }
         }
-
+     return value;
     }
-    return value ;
-}
 
-public int getHeuristicaAlter(GameStatus gs, CellType color) {
+    public int getHeuristicaAlter(GameStatus gs, CellType color) {
         
         int qn = gs.getNumberOfPiecesPerColor(color);
         
@@ -302,7 +301,7 @@ public int getHeuristicaAlter(GameStatus gs, CellType color) {
      
         for(int i = 0; i < qn; i++) {
             
-                subconjunto = creaSubConjunto(gs, gs.getPiece(color, i));
+                subconjunto = creaSubConjunto(gs, gs.getPiece(color, i), color);
                 
                 if(subconjunto.size() > value) {
                     value = subconjunto.size();
@@ -349,62 +348,51 @@ public int getHeuristicaAlter(GameStatus gs, CellType color) {
         return Math.sqrt(calx + caly);
     }
     
-    public boolean comprovaX(Point from) {
-        return from.x >= 2 && from.x <= 5;
-    }
-    
-    public boolean comprovaY(Point from) {
-        return from.y >= 2 && from.y <= 5;
-    }
-    
     public boolean validaCoordenadas(int x, int y) {
         return (x >= 0 && x <= 7) && (y >= 0 && y <= 7);
     }
     
-    public ArrayList creaSubConjunto(GameStatus s, Point from) {
+    public ArrayList creaSubConjunto(GameStatus s, Point from, CellType color) {
         
-        CellType colorNuestro = s.getCurrentPlayer();
         ArrayList <Point> puntos = new ArrayList();
         
-        puntos.add(from);
-        
         //Derecha
-        if(validaCoordenadas(from.x + 1, from.y) && s.getPos(from.x + 1, from.y) == colorNuestro){
+        if(validaCoordenadas(from.x + 1, from.y) && s.getPos(from.x + 1, from.y) == color){
             puntos.add(new Point(from.x + 1, from.y));
         }
         
         //Izquierda
-        if(validaCoordenadas(from.x - 1, from.y) && s.getPos(from.x - 1, from.y) == colorNuestro){
+        if(validaCoordenadas(from.x - 1, from.y) && s.getPos(from.x - 1, from.y) == color){
             puntos.add(new Point(from.x - 1, from.y));
         }
         
         //Abajo
-        if(validaCoordenadas(from.x, from.y + 1) && s.getPos(from.x, from.y + 1) == colorNuestro){
+        if(validaCoordenadas(from.x, from.y + 1) && s.getPos(from.x, from.y + 1) == color){
             puntos.add(new Point(from.x, from.y + 1));
         }
         
         //Arriba
-        if(validaCoordenadas(from.x, from.y - 1) && s.getPos(from.x, from.y - 1) == colorNuestro){
+        if(validaCoordenadas(from.x, from.y - 1) && s.getPos(from.x, from.y - 1) == color){
             puntos.add(new Point(from.x, from.y - 1));
         }
         
         //Diagonal izq arriba
-        if(validaCoordenadas(from.x - 1, from.y - 1) && s.getPos(from.x - 1, from.y - 1) == colorNuestro){
+        if(validaCoordenadas(from.x - 1, from.y - 1) && s.getPos(from.x - 1, from.y - 1) == color){
             puntos.add(new Point(from.x - 1, from.y - 1));
         }
         
         //Diagonal izq abajo
-        if(validaCoordenadas(from.x - 1, from.y + 1) && s.getPos(from.x - 1, from.y + 1) == colorNuestro){
+        if(validaCoordenadas(from.x - 1, from.y + 1) && s.getPos(from.x - 1, from.y + 1) == color){
             puntos.add(new Point(from.x - 1, from.y + 1));
         }
         
         //Diagonal der arriba
-        if(validaCoordenadas(from.x + 1, from.y - 1) && s.getPos(from.x + 1, from.y - 1) == colorNuestro){
+        if(validaCoordenadas(from.x + 1, from.y - 1) && s.getPos(from.x + 1, from.y - 1) == color){
             puntos.add(new Point(from.x + 1, from.y - 1));
         }
         
         //Diagonal der abajo
-        if( validaCoordenadas(from.x + 1, from.y + 1) && s.getPos(from.x + 1, from.y + 1) == colorNuestro){
+        if( validaCoordenadas(from.x + 1, from.y + 1) && s.getPos(from.x + 1, from.y + 1) == color){
             puntos.add(new Point(from.x + 1, from.y + 1));
         }
         
@@ -413,7 +401,7 @@ public int getHeuristicaAlter(GameStatus gs, CellType color) {
     
     public ArrayList grupoMayor(GameStatus s, CellType color){
         
-        ArrayList <Point> listapuntos = new ArrayList();
+        ArrayList <Point> listapuntos = new ArrayList(), grupoAux;
         ArrayList < ArrayList<Point> > grupos = new ArrayList();
         
         int quantes = s.getNumberOfPiecesPerColor(color);
@@ -423,12 +411,12 @@ public int getHeuristicaAlter(GameStatus gs, CellType color) {
         for(int i = 0; i<quantes;i++){
            aux = s.getPiece(color, i);
            listapuntos.add(aux);
-           grupos.add(creaSubConjunto(s, aux));
+           grupos.add(creaSubConjunto(s, aux, color));
         }
         
         for(int i = 0; i < listapuntos.size(); i++) {
             
-            ArrayList<Point> grupoAux = grupos.get(i);
+            grupoAux = grupos.get(i);
             
             for(int j = i + 1; j < grupos.size() - 1; j++) {
                 if(grupos.get(j).contains(listapuntos.get(i))){
@@ -443,11 +431,14 @@ public int getHeuristicaAlter(GameStatus gs, CellType color) {
         ArrayList grupoMayor = new ArrayList();
         
         for(int i = 0; i < grupos.size(); i++) {
+            
             if(grupos.get(i).size() > sizeMayor){
+                sizeMayor = grupos.get(i).size();
                 grupoMayor = grupos.get(i);
             }
+            
         }
-       
+        
         return grupoMayor;
     }
     
@@ -508,6 +499,6 @@ public int getHeuristicaAlter(GameStatus gs, CellType color) {
             return 100;
         }
         
-        return sumaEucl;
+        return sumaEucl + grupoMaxi.size();
     }
 }

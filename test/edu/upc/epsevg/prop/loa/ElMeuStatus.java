@@ -30,18 +30,19 @@ public class ElMeuStatus extends GameStatus {
     }   
 
     
-    public int grupoMayor(CellType color){
+    public ArrayList grupoMayor(GameStatus s, CellType color){
         
         ArrayList <Point> listapuntos = new ArrayList();
+        ArrayList < ArrayList<Point> > grupos = new ArrayList();
         
-        int quantes = getNumberOfPiecesPerColor(color);
+        int quantes = s.getNumberOfPiecesPerColor(color);
         
         Point aux = new Point();
         
         for(int i = 0; i<quantes;i++){
-           aux = getPiece(color, i);
+           aux = s.getPiece(color, i);
            listapuntos.add(aux);
-           grupos.add(creaSubConjunto(this, aux));
+           grupos.add(creaSubConjunto(s, aux));
         }
         
         for(int i = 0; i < listapuntos.size(); i++) {
@@ -57,8 +58,7 @@ public class ElMeuStatus extends GameStatus {
             
         }
         
-        
-        int sizeMayor = -100;
+        int sizeMayor = -1000;
         ArrayList grupoMayor = new ArrayList();
         
         for(int i = 0; i < grupos.size(); i++) {
@@ -68,9 +68,7 @@ public class ElMeuStatus extends GameStatus {
             }
         }
         
-        grupos = grupoMayor;
-        
-        return sizeMayor;
+        return grupoMayor;
     }
     
     public ArrayList concatena(ArrayList a, ArrayList b){
