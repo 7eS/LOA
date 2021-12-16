@@ -501,4 +501,28 @@ public class OLA implements IPlayer, IAuto {
         
         return sumaEucl + grupoMaxi.size();
     }
+    
+    
+    
+    // Función que agrupa todas las heuristicas y devuelve el resultado final
+    // Se calculan los arrays necesarios en esta y se pasa por parametro.
+    public int heuristicas(){
+        int total = 0;
+        
+       
+        
+        
+        
+        return total;
+    }
+    //Le pasamos el status, el color y la array de moviemientos. Si posicion to == ficha rival, contar vecinas
+    public int comeFicha(GameStatus gs, CellType color) {
+        
+        
+    
+         
+        return 0;
+    }
+
+
 }

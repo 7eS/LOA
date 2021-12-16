@@ -2,7 +2,6 @@ package edu.upc.epsevg.prop.loa;
 
 import java.awt.Point;
 import java.util.ArrayList;
-import org.junit.Test;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
