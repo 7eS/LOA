@@ -328,9 +328,9 @@ public class OLA implements IPlayer, IAuto {
         for(int i = 0; i < puntosFuera.size(); i++) {
             double minimEucl = Integer.MAX_VALUE;
             for(int j = 0; j < subconjMayor.size(); j++) {
-                double eucl = Euclidiana(puntosFuera.get(i), subconjMayor.get(j));
+                double manh = manhattan(puntosFuera.get(i), subconjMayor.get(j));
                 
-                if(minimEucl > eucl) minimEucl = eucl;
+                if(minimEucl > manh) minimEucl = manh;
             }
             
             sumaEucl += minimEucl;
@@ -486,7 +486,7 @@ public class OLA implements IPlayer, IAuto {
             
             for(int j = 0; j < grupoMaxi.size(); j++) {
                 
-                double eucl = Euclidiana(puntosFuera.get(i), grupoMaxi.get(j));
+                double eucl = manhattan(puntosFuera.get(i), grupoMaxi.get(j));
                 
                 if(minimEucl > eucl) minimEucl = eucl;
             }
@@ -497,32 +497,58 @@ public class OLA implements IPlayer, IAuto {
         // Caso base= si la sumaEucl es igual a la size de puntosFuera.size()
         // significa que están todas las fichas juntas y por tanto hemos ganado.
         
-        if(sumaEucl == puntosFuera.size()){
-            return 100;
-        }
-        
         return grupoMaxi.size() + sumaEucl;
     }
     
     // Función que agrupa todas las heuristicas y devuelve el resultado final
     // Se calculan los arrays necesarios en esta y se pasa por parametro.
-    public int heuristicas(){
-        int total = 0;
+    public int heuristicas(GameStatus s, CellType color){
+         int total = 0;
+        int hNuestra = 0;
+        int hRival = 0;
         
+        //Calculamos nuestra heuristica
+        int hConjuntoMayor = getHeuristicaDef(s, color);
+        //int hVecinas = getHeuristicaAlter(s,color);
+        
+        //Se podria hacer también ponderada
+        hNuestra = hConjuntoMayor;
+        
+        //Calculamos la heuristica del rival
+        int hConjuntoMayorRival = getHeuristicaDef(s, CellType.opposite(color));
+        //int hVecinasRival = getHeuristicaAlter(s,CellType.opposite(color));
        
+        hRival = hConjuntoMayorRival;
         
-        
+        //obtenemos resultado
+        total = hNuestra-hRival;
         
         return total;
     }
-    //Le pasamos el status, el color y la array de moviemientos. Si posicion to == ficha rival, contar vecinas
-    public int comeFicha(GameStatus gs, CellType color) {
-        
-        
     
-         
+    //Le pasamos el status, el color y la array de moviemientos. Si posicion to == ficha rival, contar vecinas
+    public int comeFicha(GameStatus s, CellType color) {
+        
+        int qn = s.getNumberOfPiecesPerColor(color);
+        Point from = new Point(0, 0);
+        Point to = new Point(0, 0);
+
+        //ArrayList<Point> pendingPieces = new ArrayList<>();
+        ArrayList<Point> moviments = new ArrayList<>();
+
+        
+        // Obtenim les peces i la seva ubicació
+        for (int q = 0;q< qn ;q++) {
+                from = s.getPiece(color, q);
+            // Per cada peça obtenim els seus moviments possibles
+            moviments = (s.getMoves(from));         
+            }
         return 0;
     }
-
-
+    
+    public int manhattan(Point from, Point to){
+        
+        int distance = Math.abs(from.x-to.x) + Math.abs(from.y-to.y);
+        return distance;
+    }
 }
