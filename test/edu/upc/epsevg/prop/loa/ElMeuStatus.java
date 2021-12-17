@@ -29,9 +29,69 @@ public class ElMeuStatus extends GameStatus {
     }   
 
     
+    
+    public double Euclidiana(Point from, Point center) {
+        
+        double calx = Math.pow(from.x - center.x, 2);
+        double caly = Math.pow(from.y - center.y, 2);
+        
+        return Math.sqrt(calx + caly);
+    }
+    
+    public boolean validaCoordenadas(int x, int y) {
+        return (x >= 0 && x <= 7) && (y >= 0 && y <= 7);
+    }
+    
+    public ArrayList creaSubConjunto(GameStatus s, Point from, CellType color) {
+        
+        ArrayList <Point> puntos = new ArrayList();
+        
+        //Derecha
+        if(validaCoordenadas(from.x + 1, from.y) && s.getPos(from.x + 1, from.y) == color){
+            puntos.add(new Point(from.x + 1, from.y));
+        }
+        
+        //Izquierda
+        if(validaCoordenadas(from.x - 1, from.y) && s.getPos(from.x - 1, from.y) == color){
+            puntos.add(new Point(from.x - 1, from.y));
+        }
+        
+        //Abajo
+        if(validaCoordenadas(from.x, from.y + 1) && s.getPos(from.x, from.y + 1) == color){
+            puntos.add(new Point(from.x, from.y + 1));
+        }
+        
+        //Arriba
+        if(validaCoordenadas(from.x, from.y - 1) && s.getPos(from.x, from.y - 1) == color){
+            puntos.add(new Point(from.x, from.y - 1));
+        }
+        
+        //Diagonal izq arriba
+        if(validaCoordenadas(from.x - 1, from.y - 1) && s.getPos(from.x - 1, from.y - 1) == color){
+            puntos.add(new Point(from.x - 1, from.y - 1));
+        }
+        
+        //Diagonal izq abajo
+        if(validaCoordenadas(from.x - 1, from.y + 1) && s.getPos(from.x - 1, from.y + 1) == color){
+            puntos.add(new Point(from.x - 1, from.y + 1));
+        }
+        
+        //Diagonal der arriba
+        if(validaCoordenadas(from.x + 1, from.y - 1) && s.getPos(from.x + 1, from.y - 1) == color){
+            puntos.add(new Point(from.x + 1, from.y - 1));
+        }
+        
+        //Diagonal der abajo
+        if( validaCoordenadas(from.x + 1, from.y + 1) && s.getPos(from.x + 1, from.y + 1) == color){
+            puntos.add(new Point(from.x + 1, from.y + 1));
+        }
+        
+        return puntos;
+    }
+    
     public ArrayList grupoMayor(GameStatus s, CellType color){
         
-        ArrayList <Point> listapuntos = new ArrayList();
+        ArrayList <Point> listapuntos = new ArrayList(), grupoAux;
         ArrayList < ArrayList<Point> > grupos = new ArrayList();
         
         int quantes = s.getNumberOfPiecesPerColor(color);
@@ -41,29 +101,26 @@ public class ElMeuStatus extends GameStatus {
         for(int i = 0; i<quantes;i++){
            aux = s.getPiece(color, i);
            listapuntos.add(aux);
-           grupos.add(creaSubConjunto(s, aux));
-        }
-        
-        for(int i = 0; i < listapuntos.size(); i++) {
-            
-            ArrayList<Point> grupoAux = grupos.get(i);
-            
-            for(int j = i + 1; j < grupos.size() - 1; j++) {
-                if(grupos.get(j).contains(listapuntos.get(i))){
-                    grupoAux = concatena(grupoAux, grupos.get(j));
-                    grupos.set(j, grupoAux);
-                }
-            }
-            
+           grupos.add(creaSubConjunto(s, aux, color));
         }
         
         int sizeMayor = -1000;
         ArrayList grupoMayor = new ArrayList();
         
-        for(int i = 0; i < grupos.size(); i++) {
-            if(grupos.get(i).size() > sizeMayor){
-                sizeMayor = grupos.get(i).size();
-                grupoMayor = grupos.get(i);
+        for(int i = 0; i < listapuntos.size() - 1; i++) {
+            
+            grupoAux = grupos.get(i);
+            
+            for(int j = i + 1; j < grupos.size(); j++) {
+                if(grupos.get(j).contains(listapuntos.get(i))){
+                    grupoAux = concatena(grupoAux, grupos.get(j));
+                    grupos.set(j, grupoAux);
+                }
+                
+                if(grupos.get(j).size() > sizeMayor){
+                    sizeMayor = grupos.get(j).size();
+                    grupoMayor = grupos.get(j);
+                }
             }
         }
         
@@ -83,114 +140,39 @@ public class ElMeuStatus extends GameStatus {
         return conc;
     }
     
-    public int getHeuristicaAlter(GameStatus gs, CellType color) {
+    public int getHeuristicaDef(GameStatus gs, CellType color) {
         
         int qn = gs.getNumberOfPiecesPerColor(color);
         
-        int value = Integer.MIN_VALUE;
-        
-        ArrayList <Point> subconjMayor = new ArrayList(), 
-                subconjunto = new ArrayList();
         ArrayList <Point> puntosFuera = new ArrayList();
-       
-        // Calculamos cuál es el subconjunto mayor y obtenemos todas 
-        // las fichas que lo forman
-     
-        for(int i = 0; i < qn; i++) {
-            
-                subconjunto = creaSubConjunto(gs, gs.getPiece(color, i));
-                
-                if(subconjunto.size() > value) {
-                    value = subconjunto.size();
-                    subconjMayor = subconjunto;
-                }                
-        }
         
-        // Excluimos los puntos del subconjunto para mover los otros.
-        for(int i = 0; i< qn; i++) {
-            Point puntoAux = gs.getPiece(color, i);
-            if(!subconjMayor.contains(puntoAux)) puntosFuera.add(puntoAux);
-        }
+        ArrayList <Point> grupoMaximo = grupoMayor(gs, color);
         
         int sumaEucl = 0;
         
-        // Hacemos una suma de todas las euclidianas respecto al conjunto mayor
-        // para poder saber cuánto de dispersas están las fichas.
-        for(int i = 0; i < puntosFuera.size(); i++) {
-            double minimEucl = Integer.MAX_VALUE;
-            for(int j = 0; j < subconjMayor.size(); j++) {
-                double eucl = Euclidiana(puntosFuera.get(i), subconjMayor.get(j));
-                
-                if(minimEucl > eucl) minimEucl = eucl;
-            }
+        // Hacemos la distancia de los puntos de fuera respecto al grupo mayor
+        
+        for(int i = 0; i< qn; i++) {
             
-            sumaEucl += minimEucl;
-        }
-        
-        // Caso base= si la sumaEucl es igual a la size de puntosFuera.size()
-        // significa que están todas las fichas juntas y por tanto hemos ganado.
-        if(sumaEucl == puntosFuera.size()) return Integer.MAX_VALUE;
-        
-        return sumaEucl + subconjMayor.size();
-    }
+            Point puntoAux = gs.getPiece(color, i);
+            
+            if(!grupoMaximo.contains(puntoAux)){
+                
+                puntosFuera.add(puntoAux);
+                
+                double minimEucl = Integer.MAX_VALUE;
+            
+                for(int j = 0; j < grupoMaximo.size(); j++) {
 
-    public double Euclidiana(Point from, Point center) {
-        
-        double calx = Math.pow(from.x - center.x, 2);
-        double caly = Math.pow(from.y - center.y, 2);
-        
-        return Math.sqrt(calx + caly);
-    }
-    
-    public boolean validaCoordenadas(int x, int y) {
-        return (x >= 0 && x <= 7) && (y >= 0 && y <= 7);
-    }
-    
-    public ArrayList creaSubConjunto(GameStatus s, Point from) {
-        
-        CellType colorNuestro = s.getCurrentPlayer();
-        ArrayList <Point> puntos = new ArrayList();
-        
-        //Derecha
-        if(validaCoordenadas(from.x + 1, from.y) && s.getPos(from.x + 1, from.y) == colorNuestro){
-            puntos.add(new Point(from.x + 1, from.y));
+                    double eucl = Euclidiana(puntoAux, grupoMaximo.get(j));
+
+                    if(minimEucl > eucl) minimEucl = eucl;
+                }
+
+                sumaEucl += minimEucl;
+            }
         }
         
-        //Izquierda
-        if(validaCoordenadas(from.x - 1, from.y) && s.getPos(from.x - 1, from.y) == colorNuestro){
-            puntos.add(new Point(from.x - 1, from.y));
-        }
-        
-        //Abajo
-        if(validaCoordenadas(from.x, from.y + 1) && s.getPos(from.x, from.y + 1) == colorNuestro){
-            puntos.add(new Point(from.x, from.y + 1));
-        }
-        
-        //Arriba
-        if(validaCoordenadas(from.x, from.y - 1) && s.getPos(from.x, from.y - 1) == colorNuestro){
-            puntos.add(new Point(from.x, from.y - 1));
-        }
-        
-        //Diagonal izq arriba
-        if(validaCoordenadas(from.x - 1, from.y - 1) && s.getPos(from.x - 1, from.y - 1) == colorNuestro){
-            puntos.add(new Point(from.x - 1, from.y - 1));
-        }
-        
-        //Diagonal izq abajo
-        if(validaCoordenadas(from.x - 1, from.y + 1) && s.getPos(from.x - 1, from.y + 1) == colorNuestro){
-            puntos.add(new Point(from.x - 1, from.y + 1));
-        }
-        
-        //Diagonal der arriba
-        if(validaCoordenadas(from.x + 1, from.y - 1) && s.getPos(from.x + 1, from.y - 1) == colorNuestro){
-            puntos.add(new Point(from.x + 1, from.y - 1));
-        }
-        
-        //Diagonal der abajo
-        if( validaCoordenadas(from.x + 1, from.y + 1) && s.getPos(from.x + 1, from.y + 1) == colorNuestro){
-            puntos.add(new Point(from.x + 1, from.y + 1));
-        }
-        
-        return puntos;
+        return -sumaEucl + grupoMaximo.size();
     }
 }

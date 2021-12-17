@@ -14,24 +14,20 @@ import java.util.ArrayList;
  *
  * @author bernat
  */
-public class OLA implements IPlayer, IAuto {
+public class OLA3 implements IPlayer, IAuto {
 
     //Variables globales
     private int prof;
     private int nodesExp;
     private boolean tout;
     private CellType color;
-    private ArrayList <Point> grupoMaximoN, grupoMaximoR;
-    private double prob, probR;
+    private ArrayList <Point> puntosFueraRival;
 
-    public OLA() {
+    public OLA3() {
         nodesExp = 0;
         tout = false;
         prof = 0;
-        grupoMaximoN = new ArrayList();
-        grupoMaximoR = new ArrayList();
-        prob = 0.0;
-        probR = 0.0;
+        puntosFueraRival = new ArrayList();
     }
 
     @Override
@@ -67,23 +63,24 @@ public class OLA implements IPlayer, IAuto {
 
         Move movimiento = new Move(from, to, 0, 0, SearchType.MINIMAX_IDS);
         
+        
+        // Calculamos las fichas fuera del rival
+        
+//        ArrayList <Point> gMaxim = grupoMayor(s, CellType.opposite(color));
+//        
+//        for(int i = 0; i< qn; i++) {
+//            
+//            Point puntoAux = s.getPiece(CellType.opposite(color), i);
+//            
+//            if(!gMaxim.contains(puntoAux)){
+//                
+//                puntosFueraRival.add(puntoAux);
+//            }
+//        }
+        
+        //
+        
 
-        // Obtenemos nuestro grupo Maximo
-        
-           grupoMaximoN = grupoMayor(s, color);
-           
-           prob = (double)grupoMaximoN.size()/qn;
-        
-        //
-        
-        // Obtenemos grupo Maximo rival
-        
-           grupoMaximoR = grupoMayor(s, CellType.opposite(color));
-           
-           probR = (double)grupoMaximoR.size()/qn;
-        
-        //
-        
         // Obtenim les peces i la seva ubicació
         while (!tout) {
 
@@ -183,20 +180,7 @@ public class OLA implements IPlayer, IAuto {
         } else if (pprof == 0) {
             // Comparación entre heurística nuestra y la del rival para ver 
             //quien tiene ventaja
-            //return getHeuristicaDef(s, color) - getHeuristicaDef(s, CellType.opposite(color)); 
-            int rival = getHeuristicaDef(s, color);
-            int nosotros = getHeuristicaDef(s, CellType.opposite(color));
-            
-            if(rival > nosotros) {
-                int heur = rival - nosotros;
-                if(heur > 0 ) return -heur;
-                return heur;
-            }
-            else {
-                int heur = nosotros - rival;
-                if(heur < 0 ) return heur;
-                return heur;
-            }
+            return getHeuristicaDef(s, color) - getHeuristicaDef(s, CellType.opposite(color));
         }
 
         int value = Integer.MAX_VALUE;
@@ -280,21 +264,7 @@ public class OLA implements IPlayer, IAuto {
         } else if(pprof == 0){
             // Comparación entre heurística nuestra y la del rival para ver 
             //quien tiene ventaja
-            //return getHeuristicaDef(s, CellType.opposite(color)) - getHeuristicaDef(s,color);
-            
-            int rival = getHeuristicaDef(s, color);
-            int nosotros = getHeuristicaDef(s, CellType.opposite(color));
-            
-            if(rival > nosotros) {
-                int heur = rival - nosotros;
-                if(heur > 0 ) return -heur;
-                return heur;
-            }
-            else {
-                int heur = nosotros - rival;
-                if(heur < 0 ) return -heur;
-                return heur;
-            }
+            return getHeuristicaDef(s, CellType.opposite(color)) - getHeuristicaDef(s,color);
         }
 
         int value = Integer.MIN_VALUE;
@@ -485,21 +455,15 @@ public class OLA implements IPlayer, IAuto {
             }
         }
         
-        // Hacemos que los puntos de fuera tengan más peso
+        // Matar las fichas del rival
+//        if(color == CellType.opposite(this.color)) {
+//            if(this.puntosFueraRival.size() < puntosFuera.size()) {
+//                return Integer.MAX_VALUE;
+//            }
+//        }
+        //
         
-        int valorMult = 1;
-        if(color == this.color) {
-            if((double)grupoMaximo.size()/qn > prob){
-                return Integer.MAX_VALUE;
-            }
-        }
-        else {
-            if((double)grupoMaximo.size()/qn > probR){
-                return Integer.MIN_VALUE;
-            }
-        }
-        
-        return -sumaEucl + grupoMaximo.size() * valorMult;
+        return sumaEucl + grupoMaximo.size();
     }
     
     

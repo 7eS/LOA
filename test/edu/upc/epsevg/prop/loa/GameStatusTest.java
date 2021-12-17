@@ -58,17 +58,17 @@ public class GameStatusTest {
 //        System.out.println("=========================================================");
 //        
 //        
-        int matrix3[][] = 
-        new int[][] {
-            {+0,-1,-1,-1,-1,-1,-1,+0},
-            {+0,+0,+0,+1,+0,+0,+0,+0},
-            {+0,+0,+0,+1,+0,+0,+0,+1},
-            {+1,+0,+0,+1,+1,+1,+0,+1},
-            {+0,+0,+0,+1,+1,+0,+0,+1},
-            {+0,+0,+0,+1,+0,+0,+0,+1},
-            {+0,+0,+0,+0,+0,+0,+0,+0},
-            {+0,-1,-1,-1,-1,-1,-1,+0}
-        };     
+//        int matrix3[][] = 
+//        new int[][] {
+//            {+0,-1,-1,-1,-1,-1,-1,+0},
+//            {+0,+0,+0,+1,+0,+0,+0,+0},
+//            {+0,+0,+0,+1,+0,+0,+0,+0},
+//            {+0,+0,+0,+1,+1,+1,+0,+0},
+//            {+0,+0,+0,+1,+1,+0,+0,+0},
+//            {+0,+0,+0,+1,+0,+0,+0,+0},
+//            {+0,+0,+0,+0,+0,+0,+0,+0},
+//            {+0,-1,-1,-1,-1,-1,-1,+0}
+//        };     
 
 //         int matrix3[][] = 
 //        new int[][] {
@@ -81,12 +81,39 @@ public class GameStatusTest {
 //            {+0,+0,+0,+0,+0,+0,+0,+0},
 //            {+0,-1,+0,+0,+0,+0,+0,+0}
 //        }; 
+
+        int matrix3[][] = 
+                new int[][] {
+                    {+0,+0,+0,+0,+0,+0,+0,+0},
+                    {+0,+0,+0,+1,+0,+0,+0,+0},
+                    {+0,+0,+0,+1,+0,+0,+0,+0},
+                    {+0,+0,+0,+1,+0,+0,+0,+1},
+                    {+0,+0,+1,+1,+0,+0,+0,+0},
+                    {+0,+0,+0,+1,+0,+0,+0,+0},
+                    {+0,+0,+0,+0,+0,+0,+0,+0},
+                    {+0,+0,+0,+0,+0,+0,+0,+0}
+                }; 
+        
+        int matrix4[][] = 
+                new int[][] {
+                    {+0,+0,+0,+0,+0,+0,+0,+0},
+                    {+0,+0,+0,+1,+0,+0,+0,+0},
+                    {+0,+0,+0,+1,+0,+1,+0,+0},
+                    {+0,+0,+0,+1,+0,+0,+0,+0},
+                    {+0,+0,+0,+1,+0,+0,+0,+0},
+                    {+0,+0,+0,+0,+0,+0,+0,+0},
+                    {+0,+1,+0,+0,+1,+0,+0,+0},
+                    {+0,+0,+0,+0,+0,+0,+0,+0}
+                }; 
         
         ElMeuStatus gs3 = new ElMeuStatus(matrix3);
-        System.out.println("Pieza: " + gs3.getPiece(CellType.PLAYER1, 0).toString());
-        System.out.println(gs3.toString());
-        ArrayList hola = gs3.grupoMayor(gs3, CellType.PLAYER1);
-        System.out.println("Grupo Mayor:" + '\n' +hola + '\n' + hola.size());
+        ElMeuStatus gs4 = new ElMeuStatus(matrix4);
+        System.out.println("Heur1: " + gs3.getHeuristicaDef(gs3, CellType.PLAYER1));
+        System.out.println("Heur2: " + gs4.getHeuristicaDef(gs4, CellType.PLAYER1));
+//        System.out.println("Pieza: " + gs3.getPiece(CellType.PLAYER1, 0).toString());
+//        System.out.println(gs3.toString());
+//        ArrayList hola = gs3.grupoMayor(gs3, CellType.PLAYER1);
+//        System.out.println("Grupo Mayor:" + '\n' +hola + '\n' + hola.size());
     }
    
 }
