@@ -21,17 +21,11 @@ public class OLA implements IPlayer, IAuto {
     private int nodesExp;
     private boolean tout;
     private CellType color;
-    private ArrayList <Point> grupoMaximoN, grupoMaximoR;
-    private double prob, probR;
 
     public OLA() {
         nodesExp = 0;
         tout = false;
         prof = 0;
-        grupoMaximoN = new ArrayList();
-        grupoMaximoR = new ArrayList();
-        prob = 0.0;
-        probR = 0.0;
     }
 
     @Override
@@ -59,7 +53,9 @@ public class OLA implements IPlayer, IAuto {
         Point to = new Point(0, 0);
 
         color = s.getCurrentPlayer();
+        
         int qn = s.getNumberOfPiecesPerColor(color);
+        int qnR = s.getNumberOfPiecesPerColor(CellType.opposite(color));
 
         ArrayList<Point> moviments;
 
@@ -70,17 +66,17 @@ public class OLA implements IPlayer, IAuto {
 
         // Obtenemos nuestro grupo Maximo
         
-           grupoMaximoN = grupoMayor(s, color);
-           
-           prob = (double)grupoMaximoN.size()/qn;
-        
-        //
-        
-        // Obtenemos grupo Maximo rival
-        
-           grupoMaximoR = grupoMayor(s, CellType.opposite(color));
-           
-           probR = (double)grupoMaximoR.size()/qn;
+//           grupoMaximoN = grupoMayor(s, color);
+//           
+//           prob = (double)grupoMaximoN.size()/qn;
+//        
+//        //
+//        
+//        // Obtenemos grupo Maximo rival
+//        
+//           grupoMaximoR = grupoMayor(s, CellType.opposite(color));
+//           
+//           probR = (double)grupoMaximoR.size()/qnR;
         
         //
         
@@ -110,6 +106,7 @@ public class OLA implements IPlayer, IAuto {
                             saux.movePiece(from, to);
                             
                             if(!tout && saux.isGameOver() && saux.GetWinner() == color){
+                                System.out.println("shortcut for winners :P");
                                 return new Move(from, to, nodesExp, prof, SearchType.MINIMAX_IDS);
                             }
                             
@@ -282,8 +279,8 @@ public class OLA implements IPlayer, IAuto {
             //quien tiene ventaja
             //return getHeuristicaDef(s, CellType.opposite(color)) - getHeuristicaDef(s,color);
             
-            int rival = getHeuristicaDef(s, color);
-            int nosotros = getHeuristicaDef(s, CellType.opposite(color));
+            int rival = getHeuristicaDef(s, CellType.opposite(color));
+            int nosotros = getHeuristicaDef(s, color);
             
             if(rival > nosotros) {
                 int heur = rival - nosotros;
@@ -456,9 +453,8 @@ public class OLA implements IPlayer, IAuto {
         
         int qn = gs.getNumberOfPiecesPerColor(color);
         
-        ArrayList <Point> puntosFuera = new ArrayList();
-        
-        ArrayList <Point> grupoMaximo = grupoMayor(gs, color);
+        ArrayList <Point> puntosFuera = new ArrayList(); 
+        ArrayList <Point> grupoMaximo = grupoMayor(gs, color); 
         
         int sumaEucl = 0;
         
@@ -485,18 +481,14 @@ public class OLA implements IPlayer, IAuto {
             }
         }
         
-        // Hacemos que los puntos de fuera tengan más peso
-        
         int valorMult = 1;
         if(color == this.color) {
-            if((double)grupoMaximo.size()/qn > prob){
-                return Integer.MAX_VALUE;
-            }
+            if(puntosFuera.size() <= grupoMaximo.size()) valorMult = 10;
+            else if(puntosFuera.size() > grupoMaximo.size()) valorMult = -20;
         }
         else {
-            if((double)grupoMaximo.size()/qn > probR){
-                return Integer.MIN_VALUE;
-            }
+            if(puntosFuera.size() <= grupoMaximo.size()) valorMult = 20;
+            else if(puntosFuera.size() > grupoMaximo.size()) valorMult = -30;
         }
         
         return -sumaEucl + grupoMaximo.size() * valorMult;
