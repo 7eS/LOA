@@ -21,11 +21,29 @@ public class OLA implements IPlayer, IAuto {
     private int nodesExp;
     private boolean tout;
     private CellType color;
+    private ArrayList <Point> centro;
+    
+    // Segun seamos blancas o negras priorizamos la horizontal o la vertical
+    private Point horizontal1 = new Point(3,2);
+    private Point horizontal2 = new Point(3,3);
+    private Point horizontal3 = new Point(3,4);
+    private Point horizontal4 = new Point(3,5);
+    
+    private Point vertical1 = new Point(2,3);
+    private Point vertical2 = new Point(3,3);
+    private Point vertical3 = new Point(4,3);
+    private Point vertical4 = new Point(5,3);
+    
+    
+    
 
     public OLA() {
         nodesExp = 0;
         tout = false;
         prof = 0;
+
+        centro = new ArrayList();
+
     }
 
     @Override
@@ -45,7 +63,8 @@ public class OLA implements IPlayer, IAuto {
 
         tout = false;
 
-        int valor;
+        int valor = 0;
+        int valorNou = Integer.MIN_VALUE;
         int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
 
@@ -53,19 +72,32 @@ public class OLA implements IPlayer, IAuto {
         Point to = new Point(0, 0);
 
         color = s.getCurrentPlayer();
-        
         int qn = s.getNumberOfPiecesPerColor(color);
-        int qnR = s.getNumberOfPiecesPerColor(CellType.opposite(color));
 
         ArrayList<Point> moviments;
-
+        
+        
+        // Según nuestro color priorizamos la linea central vertical u horizontal        
+        if(color == CellType.PLAYER1){
+            centro.add(vertical1);
+            centro.add(vertical2);
+            centro.add(vertical3);
+            centro.add(vertical4);            
+        }
+        else{
+            centro.add(horizontal1);
+            centro.add(horizontal2);
+            centro.add(horizontal3);
+            centro.add(horizontal4);
+        }
+        
         Move movimiento_def = new Move(from, to, 0, 0, SearchType.MINIMAX_IDS);
 
         Move movimiento = new Move(from, to, 0, 0, SearchType.MINIMAX_IDS);
         
 
-        // Obtenemos nuestro grupo Maximo
-        
+//        // Obtenemos nuestro grupo Maximo
+//        
 //           grupoMaximoN = grupoMayor(s, color);
 //           
 //           prob = (double)grupoMaximoN.size()/qn;
@@ -76,7 +108,7 @@ public class OLA implements IPlayer, IAuto {
 //        
 //           grupoMaximoR = grupoMayor(s, CellType.opposite(color));
 //           
-//           probR = (double)grupoMaximoR.size()/qnR;
+//           probR = (double)grupoMaximoR.size()/qn;
         
         //
         
@@ -106,11 +138,11 @@ public class OLA implements IPlayer, IAuto {
                             saux.movePiece(from, to);
                             
                             if(!tout && saux.isGameOver() && saux.GetWinner() == color){
-                                System.out.println("shortcut for winners :P");
+                                System.out.println("shortcut for real winners :P");
                                 return new Move(from, to, nodesExp, prof, SearchType.MINIMAX_IDS);
                             }
                             
-                            int valorNou = movMin(saux, prof - 1, alpha, beta, CellType.opposite(color));
+                                valorNou = movMin(saux, prof - 1, alpha, beta, CellType.opposite(color));
 
                             // parem el minimax
                             if(tout) break;
@@ -130,10 +162,13 @@ public class OLA implements IPlayer, IAuto {
             }
             
         }
+        //si ha saltado el timeout, debemos quedarnos con la prof anterior.
+        if(tout) prof -=1;
 
         // Reiniciamos la profundidad
         prof = 0;
-        
+        System.out.println("heur: "+ valor);
+        System.out.println("movim: "+movimiento_def.getFrom()+""+movimiento_def.getTo());
         return movimiento_def;
     }
 
@@ -143,25 +178,17 @@ public class OLA implements IPlayer, IAuto {
      */
     @Override
     public String getName() {
-        return "Minimax(OLA)";
+        return "OLA";
     }
 
     /**
-     * Función que nos devuelve el movimiento con menor valor heurístico de
-     * todos los movimientos estudiados.
-     *
-     * @param pt tablero resultante de poner una ficha en una determinada
-     * columna.
-     * @param lastcol columna en la que hemos puesto ficha para estudiar el
-     * tablero.
-     * @param pprof número de niveles restantes que le queda al algoritmo por
-     * analizar.
-     * @param alpha variable que determina el alfa para realizar la poda
-     * alfa-beta.
-     * @param beta variable que determina la beta para realizar la poda
-     * alfa-beta.
-     * @return retorna el valor heurístico máximo entre todas las posibilidades
-     * comprobadas.
+     * texto importante sobre la funcion
+     * @param s
+     * @param pprof
+     * @param alpha
+     * @param beta
+     * @param color
+     * @return 
      */
     public int movMin(GameStatus s, int pprof, int alpha, int beta, CellType color) {
         nodesExp++;
@@ -173,7 +200,7 @@ public class OLA implements IPlayer, IAuto {
             if (s.GetWinner() == CellType.opposite(color)) {
                 //System.out.println("Caso base1a");
                 return Integer.MAX_VALUE;
-            } else {
+            } else if (s.GetWinner() == CellType.opposite(CellType.opposite(color))) {
                 //System.out.println("Caso base2a");
                 return Integer.MIN_VALUE;
             }
@@ -181,8 +208,8 @@ public class OLA implements IPlayer, IAuto {
             // Comparación entre heurística nuestra y la del rival para ver 
             //quien tiene ventaja
             //return getHeuristicaDef(s, color) - getHeuristicaDef(s, CellType.opposite(color)); 
-            int rival = getHeuristicaDef(s, color);
-            int nosotros = getHeuristicaDef(s, CellType.opposite(color));
+            int rival = heuristicas(s, color);
+            int nosotros = heuristicas(s, CellType.opposite(color));
             
             if(rival > nosotros) {
                 int heur = rival - nosotros;
@@ -242,21 +269,13 @@ public class OLA implements IPlayer, IAuto {
     }
 
     /**
-     * Función que nos devuelve el movimiento con mayor valor heurístico de
-     * todos los movimientos estudiados.
-     *
-     * @param pt tablero resultante de poner una ficha en una determinada
-     * columna.
-     * @param lastcol columna en la que hemos puesto ficha para estudiar el
-     * tablero.
-     * @param pprof número de niveles restantes que le queda al algoritmo por
-     * analizar.
-     * @param alpha variable que determina el alfa para realizar la poda
-     * alfa-beta.
-     * @param beta variable que determina la beta para realizar la poda
-     * alfa-beta.
-     * @return retorna el valor heurístico máximo entre todas las posibilidades
-     * comprobadas.
+     * texto importante sobre la funcion
+     * @param s
+     * @param pprof
+     * @param alpha
+     * @param beta
+     * @param color
+     * @return 
      */
     public int movMax(GameStatus s, int pprof, int alpha, int beta, CellType color) {
 
@@ -270,7 +289,7 @@ public class OLA implements IPlayer, IAuto {
             if (s.GetWinner() == CellType.opposite(color)) {
                 //System.out.println("Caso base1b");
                 return Integer.MIN_VALUE;
-            } else {
+            } else if (s.GetWinner() == color) {
                // System.out.println("Caso base2b");
                 return Integer.MAX_VALUE;
             }
@@ -279,8 +298,8 @@ public class OLA implements IPlayer, IAuto {
             //quien tiene ventaja
             //return getHeuristicaDef(s, CellType.opposite(color)) - getHeuristicaDef(s,color);
             
-            int rival = getHeuristicaDef(s, CellType.opposite(color));
-            int nosotros = getHeuristicaDef(s, color);
+            int rival = heuristicas(s, CellType.opposite(color));
+            int nosotros = heuristicas(s, color);
             
             if(rival > nosotros) {
                 int heur = rival - nosotros;
@@ -448,8 +467,13 @@ public class OLA implements IPlayer, IAuto {
         
         return conc;
     }
-    
-    public int getHeuristicaDef(GameStatus gs, CellType color) {
+    /**
+     * texto importante sobre la funcion
+     * @param gs
+     * @param color
+     * @return 
+     */
+   public int getHeuristicaDef(GameStatus gs, CellType color) {
         
         int qn = gs.getNumberOfPiecesPerColor(color);
         
@@ -496,10 +520,118 @@ public class OLA implements IPlayer, IAuto {
     
     
     
+//    public int block(GameStatus gs, CellType colorRival){
+//        
+//        int res = 0;
+//        
+//        int qn = gs.getNumberOfPiecesPerColor(colorRival);
+//        
+//        ArrayList <Point> puntosFuera = new ArrayList();
+//        
+//        ArrayList <Point> grupoMaximo = grupoMayor(gs, colorRival);
+//        
+//        int sumaEucl = 0;
+//        
+//        // Hacemos la distancia de los puntos de fuera respecto al grupo mayor
+//        
+//        for(int i = 0; i< qn; i++) {
+//            
+//            Point puntoRival = gs.getPiece(colorRival, i);
+//            
+//            if(!grupoMaximo.contains(puntoRival)){
+//                
+//                puntosFuera.add(puntoRival);
+//                
+//                double minimEucl = Integer.MAX_VALUE;
+//            
+//                for(int j = 0; j < puntosFuera.size(); j++) {
+//                        
+//                    int vecinasRival = creaSubConjunto(gs, puntoRival, colorRival).size();
+//                    
+//                    if (vecinasRival == 0) res = 20;
+//                    else if (vecinasRival == 1) res = 10;
+//                
+//                    int vecinasNuestras = creaSubConjunto(gs,puntoRival,CellType.opposite(colorRival)).size();
+//                    //Damos mas valor a ontra mas tengamos cerca
+//                    res += 5 + 5*vecinasNuestras;
+//                    
+//                    // Añadir posibles medidas euclidianas/Mnahattan para complementar la heurist.
+//                }
+//            }
+//        }
+//        return res;
+//    }
+    
+//    public int manhattan(Point from, Point to){
+//        
+//        int distance = Math.abs(from.x-to.x) + Math.abs(from.y-to.y);
+//        return distance;
+//    }
+    
+    public int heuristicas(GameStatus s, CellType color){
+        
+        int heur = 0;
+        int h1 = 0;
+        int h2 = 0;
+        
+        h1 = getHeuristicaDef(s,color);
+        h2 = centre(s,color);
+        
+        return h1+h2;
+        }
+    
+    public int centre(GameStatus gs, CellType color){
+        int res = 0;
+        
+        
+        int qn = gs.getNumberOfPiecesPerColor(color);
+        Point ficha;
+        for (int i = 0; i < qn; i++) {
+            ficha = gs.getPiece(color, i).getLocation();
+            if(centro.contains(ficha)) res+=100;
+            
+            else{
+                if(ficha.distance(centro.get(0)) == 1.0 || ficha.distance(centro.get(1)) == 1.0
+                        || ficha.distance(centro.get(2)) == 1.0 || ficha.distance(centro.get(3)) == 1.0){ 
+                    res+=100;
+                }
+                
+                else{
+                    // centro.get(2) porque es la mas centrica
+                    double dist = ficha.distance(centro.get(2));
+                    res -= 10*dist;
+                }
+            }        
+        }
+
+        return res;
+    }
+    
+    
+   
+    
+}
+
     
     // ----------------------------------------------------------------------- //
     
-    
+//     public int goToX(GameStatus s, Point goal, CellType color){
+//        int res = 0;
+//        ArrayList <Point> mov = new ArrayList();
+//        int qn = s.getNumberOfPiecesPerColor(color);
+//        
+//        for (int i = 0; i < qn; i++) {
+//            Point fichaNuestra = s.getPiece(color, i);
+//            mov = s.getMoves(goal);
+//            for (int j = 0; j < mov.size(); j++) {
+//                Point pos = mov.get(j);
+//                
+//                
+//            }
+//        }
+//    
+//        return res;
+//    }
     
     // Función que agrupa todas las heuristicas y devuelve el resultado final
     // Se calculan los arrays necesarios en esta y se pasa por parametro.
@@ -546,13 +678,7 @@ public class OLA implements IPlayer, IAuto {
 //            }
 //        return 0;
 //    }
-//    
-//    public int manhattan(Point from, Point to){
 //        
-//        int distance = Math.abs(from.x-to.x) + Math.abs(from.y-to.y);
-//        return distance;
-//    }
-    
 //    public int getHeuristicaAlter(GameStatus gs, CellType color) {
 //        
 //        int qn = gs.getNumberOfPiecesPerColor(color);
@@ -605,4 +731,4 @@ public class OLA implements IPlayer, IAuto {
 //        
 //        return sumaEucl;
 //    }
-}
+
