@@ -21,7 +21,7 @@ public class OLA implements IPlayer, IAuto {
     private int nodesExp;
     private boolean tout;
     private CellType color;
-    private ArrayList <Point> centro;
+    private ArrayList <Point> centro, centroRival;
     
     // Segun seamos blancas o negras priorizamos la horizontal o la vertical
     private Point horizontal1 = new Point(3,2);
@@ -37,13 +37,12 @@ public class OLA implements IPlayer, IAuto {
     
     
 
-    public OLA() {
+    public OLA () {
         nodesExp = 0;
         tout = false;
-        prof = 0;
-
+        this.prof = 0;
         centro = new ArrayList();
-
+        centroRival = new ArrayList();
     }
 
     @Override
@@ -85,35 +84,27 @@ public class OLA implements IPlayer, IAuto {
                 centro.add(horizontal2);
                 centro.add(horizontal3);
                 centro.add(horizontal4);
+                centroRival.add(vertical1);
+                centroRival.add(vertical2);
+                centroRival.add(vertical3);
+                centroRival.add(vertical4);
             }
             else{
                 centro.add(vertical1);
                 centro.add(vertical2);
                 centro.add(vertical3);
                 centro.add(vertical4);
+                centroRival.add(horizontal1);
+                centroRival.add(horizontal2);
+                centroRival.add(horizontal3);
+                centroRival.add(horizontal4);
             }
         }
         
         Move movimiento_def = new Move(from, to, 0, 0, SearchType.MINIMAX_IDS);
 
         Move movimiento = new Move(from, to, 0, 0, SearchType.MINIMAX_IDS);
-        
 
-//        // Obtenemos nuestro grupo Maximo
-//        
-//           grupoMaximoN = grupoMayor(s, color);
-//           
-//           prob = (double)grupoMaximoN.size()/qn;
-//        
-//        //
-//        
-//        // Obtenemos grupo Maximo rival
-//        
-//           grupoMaximoR = grupoMayor(s, CellType.opposite(color));
-//           
-//           probR = (double)grupoMaximoR.size()/qn;
-        
-        //
         
         // Obtenim les peces i la seva ubicació
         while (!tout) {
@@ -201,29 +192,18 @@ public class OLA implements IPlayer, IAuto {
        
         if(s.isGameOver()) {
             if (s.GetWinner() == CellType.opposite(color)) {
-                //System.out.println("Caso base1a");
+               
                 return Integer.MAX_VALUE;
             } else if (s.GetWinner() == CellType.opposite(CellType.opposite(color))) {
-                //System.out.println("Caso base2a");
+                
                 return Integer.MIN_VALUE;
             }
         } else if (pprof == 0) {
-            // Comparación entre heurística nuestra y la del rival para ver 
-            //quien tiene ventaja
-            //return getHeuristicaDef(s, color) - getHeuristicaDef(s, CellType.opposite(color)); 
+            
             int rival = heuristicas(s, color);
             int nosotros = heuristicas(s, CellType.opposite(color));
             
-            if(rival > nosotros) {
-                int heur = rival - nosotros;
-                if(heur > 0 ) return -heur;
-                return heur;
-            }
-            else {
-                int heur = nosotros - rival;
-                if(heur < 0 ) return -heur;
-                return heur;
-            }
+            return nosotros - rival;
         }
 
         int value = Integer.MAX_VALUE;
@@ -297,23 +277,12 @@ public class OLA implements IPlayer, IAuto {
                 return Integer.MAX_VALUE;
             }
         } else if(pprof == 0){
-            // Comparación entre heurística nuestra y la del rival para ver 
-            //quien tiene ventaja
-            //return getHeuristicaDef(s, CellType.opposite(color)) - getHeuristicaDef(s,color);
             
             int rival = heuristicas(s, CellType.opposite(color));
             int nosotros = heuristicas(s, color);
             
-            if(rival > nosotros) {
-                int heur = rival - nosotros;
-                if(heur > 0 ) return -heur;
-                return heur;
-            }
-            else {
-                int heur = nosotros - rival;
-                if(heur < 0 ) return -heur;
-                return heur;
-            }
+            return nosotros - rival;
+            
         }
 
         int value = Integer.MIN_VALUE;
@@ -482,32 +451,30 @@ public class OLA implements IPlayer, IAuto {
         int qn = gs.getNumberOfPiecesPerColor(color);
         
         ArrayList <Point> puntosFuera = new ArrayList(); 
-        ArrayList <Point> grupoMaximo = grupoMayor(gs, color); 
-        
-        int sumaEucl = 0;
+        ArrayList <Point> grupoMaximo = grupoMayor(gs, color);
         
         // Hacemos la distancia de los puntos de fuera respecto al grupo mayor
         
-        for(int i = 0; i< qn; i++) {
-            
-            Point puntoAux = gs.getPiece(color, i);
-            
-            if(!grupoMaximo.contains(puntoAux)){
-                
-                puntosFuera.add(puntoAux);
-                
-                double minimEucl = Integer.MAX_VALUE;
-            
-                for(int j = 0; j < grupoMaximo.size(); j++) {
-
-                    double eucl = Euclidiana(puntoAux, grupoMaximo.get(j));
-
-                    if(minimEucl > eucl) minimEucl = eucl;
-                }
-
-                sumaEucl += minimEucl;
-            }
-        }
+//        for(int i = 0; i< qn; i++) {
+//            
+//            Point puntoAux = gs.getPiece(color, i);
+//            
+//            if(!grupoMaximo.contains(puntoAux)){
+//                
+//                puntosFuera.add(puntoAux);
+//                
+//                double minimEucl = Integer.MAX_VALUE;
+//            
+//                for(int j = 0; j < grupoMaximo.size(); j++) {
+//
+//                    double eucl = Euclidiana(puntoAux, grupoMaximo.get(j));
+//
+//                    if(minimEucl > eucl) minimEucl = eucl;
+//                }
+//
+//                sumaEucl += minimEucl;
+//            }
+//        }
         
         int valorMult = 1;
         if(color == this.color) {
@@ -515,67 +482,15 @@ public class OLA implements IPlayer, IAuto {
             else if(puntosFuera.size() > grupoMaximo.size()) valorMult = -30;
         }
         else {
-            if(puntosFuera.size() <= grupoMaximo.size()) valorMult = 30;
-            else if(puntosFuera.size() > grupoMaximo.size()) valorMult = -40;
+            if(puntosFuera.size() < grupoMaximo.size()) valorMult = 30;
+            else if(puntosFuera.size() >= grupoMaximo.size()) valorMult = -40;
         }
         
-//        return -sumaEucl + grupoMaximo.size() * valorMult;
         return grupoMaximo.size() * valorMult;
     }
     
-    
-    
-//    public int block(GameStatus gs, CellType colorRival){
-//        
-//        int res = 0;
-//        
-//        int qn = gs.getNumberOfPiecesPerColor(colorRival);
-//        
-//        ArrayList <Point> puntosFuera = new ArrayList();
-//        
-//        ArrayList <Point> grupoMaximo = grupoMayor(gs, colorRival);
-//        
-//        int sumaEucl = 0;
-//        
-//        // Hacemos la distancia de los puntos de fuera respecto al grupo mayor
-//        
-//        for(int i = 0; i< qn; i++) {
-//            
-//            Point puntoRival = gs.getPiece(colorRival, i);
-//            
-//            if(!grupoMaximo.contains(puntoRival)){
-//                
-//                puntosFuera.add(puntoRival);
-//                
-//                double minimEucl = Integer.MAX_VALUE;
-//            
-//                for(int j = 0; j < puntosFuera.size(); j++) {
-//                        
-//                    int vecinasRival = creaSubConjunto(gs, puntoRival, colorRival).size();
-//                    
-//                    if (vecinasRival == 0) res = 20;
-//                    else if (vecinasRival == 1) res = 10;
-//                
-//                    int vecinasNuestras = creaSubConjunto(gs,puntoRival,CellType.opposite(colorRival)).size();
-//                    //Damos mas valor a ontra mas tengamos cerca
-//                    res += 5 + 5*vecinasNuestras;
-//                    
-//                    // Añadir posibles medidas euclidianas/Mnahattan para complementar la heurist.
-//                }
-//            }
-//        }
-//        return res;
-//    }
-    
-//    public int manhattan(Point from, Point to){
-//        
-//        int distance = Math.abs(from.x-to.x) + Math.abs(from.y-to.y);
-//        return distance;
-//    }
-    
     public int heuristicas(GameStatus s, CellType color){
         
-        int heur = 0;
         int h1 = 0;
         int h2 = 0;
         
@@ -583,157 +498,41 @@ public class OLA implements IPlayer, IAuto {
         h2 = centre(s,color);
         
         return h1+h2;
-        }
+    }
     
     public int centre(GameStatus gs, CellType color){
+        
         int res = 0;
         
+        ArrayList <Point> centroAux = new ArrayList();
+        
+        if(color != this.color) {
+            centroAux = this.centroRival;
+        }else{
+            centroAux = this.centro;
+        }
         
         int qn = gs.getNumberOfPiecesPerColor(color);
         Point ficha;
         for (int i = 0; i < qn; i++) {
             ficha = gs.getPiece(color, i).getLocation();
-            if(centro.contains(ficha)) res+=100;
+            if(centroAux.contains(ficha)) res+=100;
             
             else{
-                if(ficha.distance(centro.get(0)) == 1.0 || ficha.distance(centro.get(1)) == 1.0
-                        || ficha.distance(centro.get(2)) == 1.0 || ficha.distance(centro.get(3)) == 1.0){ 
+                if(ficha.distance(centroAux.get(0)) == 1.0 || ficha.distance(centroAux.get(1)) == 1.0
+                        || ficha.distance(centroAux.get(2)) == 1.0 || ficha.distance(centroAux.get(3)) == 1.0){ 
                     res+=100;
                 }
                 
                 else{
                     // centro.get(2) porque es la mas centrica
-                    double dist = ficha.distance(centro.get(2));
+                    double dist = ficha.distance(centroAux.get(2));
                     res -= 10*dist;
                 }
             }        
         }
 
         return res;
+        
     }
-    
-    
-   
-    
 }
-
-    
-    // ----------------------------------------------------------------------- //
-    
-//     public int goToX(GameStatus s, Point goal, CellType color){
-//        int res = 0;
-//        ArrayList <Point> mov = new ArrayList();
-//        int qn = s.getNumberOfPiecesPerColor(color);
-//        
-//        for (int i = 0; i < qn; i++) {
-//            Point fichaNuestra = s.getPiece(color, i);
-//            mov = s.getMoves(goal);
-//            for (int j = 0; j < mov.size(); j++) {
-//                Point pos = mov.get(j);
-//                
-//                
-//            }
-//        }
-//    
-//        return res;
-//    }
-    
-    // Función que agrupa todas las heuristicas y devuelve el resultado final
-    // Se calculan los arrays necesarios en esta y se pasa por parametro.
-//    public int heuristicas(GameStatus s, CellType color){
-//        int total = 0;
-//        int hNuestra = 0;
-//        int hRival = 0;
-//        
-//        //Calculamos nuestra heuristica
-//        int hConjuntoMayor = getHeuristicaDef(s, color);
-//        //int hVecinas = getHeuristicaAlter(s,color);
-//        
-//        //Se podria hacer también ponderada
-//        hNuestra = hConjuntoMayor;
-//        
-//        //Calculamos la heuristica del rival
-//        int hConjuntoMayorRival = getHeuristicaDef(s, CellType.opposite(color));
-//        //int hVecinasRival = getHeuristicaAlter(s,CellType.opposite(color));
-//       
-//        hRival = hConjuntoMayorRival;
-//        
-//        //obtenemos resultado
-//        total = hNuestra-hRival;
-//        
-//        return total;
-//    }
-//    
-//    //Le pasamos el status, el color y la array de moviemientos. Si posicion to == ficha rival, contar vecinas
-//    public int comeFicha(GameStatus s, CellType color) {
-//        
-//        int qn = s.getNumberOfPiecesPerColor(color);
-//        Point from = new Point(0, 0);
-//        Point to = new Point(0, 0);
-//
-//        //ArrayList<Point> pendingPieces = new ArrayList<>();
-//        ArrayList<Point> moviments = new ArrayList<>();
-//
-//        
-//        // Obtenim les peces i la seva ubicació
-//        for (int q = 0;q< qn ;q++) {
-//                from = s.getPiece(color, q);
-//            // Per cada peça obtenim els seus moviments possibles
-//            moviments = (s.getMoves(from));         
-//            }
-//        return 0;
-//    }
-//        
-//    public int getHeuristicaAlter(GameStatus gs, CellType color) {
-//        
-//        int qn = gs.getNumberOfPiecesPerColor(color);
-//        
-//        int value = Integer.MIN_VALUE;
-//        
-//        ArrayList <Point> subconjMayor = new ArrayList(), 
-//                subconjunto = new ArrayList();
-//        ArrayList <Point> puntosFuera = new ArrayList();
-//       
-//        // Calculamos cuál es el subconjunto mayor y obtenemos todas 
-//        // las fichas que lo forman
-//     
-//        for(int i = 0; i < qn; i++) {
-//            
-//                subconjunto = creaSubConjunto(gs, gs.getPiece(color, i), color);
-//                
-//                if(subconjunto.size() > value) {
-//                    value = subconjunto.size();
-//                    subconjMayor = subconjunto;
-//                }                
-//        }
-//        
-//        // Excluimos los puntos del subconjunto para mover los otros.
-//        for(int i = 0; i< qn; i++) {
-//            Point puntoAux = gs.getPiece(color, i);
-//            if(!subconjMayor.contains(puntoAux)) puntosFuera.add(puntoAux);
-//        }
-//        
-//        int sumaEucl = 0;
-//        
-//        // Hacemos una suma de todas las euclidianas respecto al conjunto mayor
-//        // para poder saber cuánto de dispersas están las fichas.
-//        for(int i = 0; i < puntosFuera.size(); i++) {
-//            double minimEucl = Integer.MAX_VALUE;
-//            for(int j = 0; j < subconjMayor.size(); j++) {
-//                double manh = manhattan(puntosFuera.get(i), subconjMayor.get(j));
-//                
-//                if(minimEucl > manh) minimEucl = manh;
-//            }
-//            
-//            sumaEucl += minimEucl;
-//        }
-//        // Caso base= si la sumaEucl es igual a la size de puntosFuera.size()
-//        // significa que están todas las fichas juntas y por tanto hemos ganado.
-//        if(sumaEucl == puntosFuera.size()){
-//           // System.out.println("Caso base Heurística: " + color);
-//            return Integer.MAX_VALUE;
-//        }
-//        
-//        return sumaEucl;
-//    }
-
