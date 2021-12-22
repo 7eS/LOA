@@ -24,15 +24,15 @@ public class OLA implements IPlayer, IAuto {
     private ArrayList <Point> centro, centroRival;
     
     // Segun seamos blancas o negras priorizamos la horizontal o la vertical
-    private Point horizontal1 = new Point(3,2);
+    private Point horizontal1 = new Point(2,3);
     private Point horizontal2 = new Point(3,3);
-    private Point horizontal3 = new Point(3,4);
-    private Point horizontal4 = new Point(3,5);
+    private Point horizontal3 = new Point(4,3);
+    private Point horizontal4 = new Point(5,3); 
     
-    private Point vertical1 = new Point(2,3);
+    private Point vertical1 = new Point(3,2);
     private Point vertical2 = new Point(3,3);
-    private Point vertical3 = new Point(4,3);
-    private Point vertical4 = new Point(5,3);
+    private Point vertical3 = new Point(3,4);
+    private Point vertical4 = new Point(3,5);
     
     
     
@@ -122,7 +122,7 @@ public class OLA implements IPlayer, IAuto {
 
                 if (moviments != null) {
                     for (int qt = 0; qt < moviments.size() && !tout; qt++) {
-                        to = moviments.remove(0);
+                        to = moviments.get(qt);
 
                         //fusion de minimax y move
                         if (!s.isGameOver()) {
@@ -222,7 +222,7 @@ public class OLA implements IPlayer, IAuto {
 
             if (moviments != null) {
                 for (int qt = 0; qt < moviments.size(); qt++) {
-                    to = moviments.remove(0);
+                    to = moviments.get(qt);
 
                     if (!s.isGameOver()) {
 
@@ -302,7 +302,7 @@ public class OLA implements IPlayer, IAuto {
 
             if (moviments != null) {
                 for (int qt = 0; qt < moviments.size(); qt++) {
-                    to = moviments.remove(0);
+                    to = moviments.get(qt);
 
                     if (!s.isGameOver()) {
 
