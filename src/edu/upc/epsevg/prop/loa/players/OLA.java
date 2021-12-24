@@ -455,27 +455,6 @@ public class OLA implements IPlayer, IAuto {
         
         // Hacemos la distancia de los puntos de fuera respecto al grupo mayor
         
-//        for(int i = 0; i< qn; i++) {
-//            
-//            Point puntoAux = gs.getPiece(color, i);
-//            
-//            if(!grupoMaximo.contains(puntoAux)){
-//                
-//                puntosFuera.add(puntoAux);
-//                
-//                double minimEucl = Integer.MAX_VALUE;
-//            
-//                for(int j = 0; j < grupoMaximo.size(); j++) {
-//
-//                    double eucl = Euclidiana(puntoAux, grupoMaximo.get(j));
-//
-//                    if(minimEucl > eucl) minimEucl = eucl;
-//                }
-//
-//                sumaEucl += minimEucl;
-//            }
-//        }
-        
         int valorMult = 1;
         if(color == this.color) {
             if(puntosFuera.size() <= grupoMaximo.size()) valorMult = 20;
