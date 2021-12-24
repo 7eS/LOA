@@ -10,10 +10,12 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 /**
- * Jugador aleatori
+ * Jugador que utilitza l'algorisme de profunditat fixa.
  *
- * @author bernat
+ * @author Javier Delgado
+ * @author Roger Robles
  */
+
 public class OLA_LIM implements IPlayer, IAuto {
 
     //Variables globales
@@ -34,7 +36,11 @@ public class OLA_LIM implements IPlayer, IAuto {
     private Point vertical4 = new Point(5,3);
     
     
-    
+    /**
+     * Constructor del jugador.
+     * 
+     * @param pprof profunditat màxima a la que arriba.
+     */
 
     public OLA_LIM (int pprof) {
         nodesExp = 0;
@@ -42,18 +48,23 @@ public class OLA_LIM implements IPlayer, IAuto {
         centro = new ArrayList();
         centroRival = new ArrayList();
     }
-
+    
     @Override
     public void timeout() {
     }
+    
+    @Override
+    public String getName() {
+        return "OLA_LIM";
+    }
 
     /**
-     * Decideix el moviment del jugador donat un tauler i un color de peça que
-     * ha de posar.
+     * Funció que decideix quin és el millor moviment següent.
      *
      * @param s Tauler i estat actual de joc.
      * @return el moviment que fa el jugador.
      */
+    
     @Override
     public Move move(GameStatus s) {
 
@@ -136,25 +147,20 @@ public class OLA_LIM implements IPlayer, IAuto {
         
         return movimiento;
     }
-
+    
     /**
-     * Ens avisa que hem de parar la cerca en curs perquè s'ha exhaurit el temps
-     * de joc.
+     *
+     * Funció que retorna el moviment amb menys valor heurístic de tots els moviments
+     * estudiats.
+     *
+     * @param s estat actual del tauler.
+     * @param pprof profunditat a la que estem dins del minimax
+     * @param alpha variable que fa refèrencia a l'alfa per fer la poda.
+     * @param beta variable que fa refèrencia a la beta per fer la poda.
+     * @param color variable que fa refèrencia al color del jugador que mou segon.
+     * @return retorna el moviment que menys valor heurístic té.
      */
-    @Override
-    public String getName() {
-        return "OLA_LIM";
-    }
-
-    /**
-     * texto importante sobre la funcion
-     * @param s
-     * @param pprof
-     * @param alpha
-     * @param beta
-     * @param color
-     * @return 
-     */
+    
     public int movMin(GameStatus s, int pprof, int alpha, int beta, CellType color) {
         nodesExp++;
        
@@ -215,13 +221,15 @@ public class OLA_LIM implements IPlayer, IAuto {
     }
 
     /**
-     * texto importante sobre la funcion
-     * @param s
-     * @param pprof
-     * @param alpha
-     * @param beta
-     * @param color
-     * @return 
+     * Funció que retorna el moviment amb més valor heurístic de tots els moviments
+     * estudiats.
+     *
+     * @param s estat actual del tauler.
+     * @param pprof profunditat a la que estem dins del minimax
+     * @param alpha variable que fa refèrencia a l'alfa per fer la poda.
+     * @param beta variable que fa refèrencia a la beta per fer la poda.
+     * @param color variable que fa refèrencia al color del jugador que mou primer.
+     * @return retorna el moviment que més valor heurístic té.
      */
     public int movMax(GameStatus s, int pprof, int alpha, int beta, CellType color) {
 
@@ -284,18 +292,28 @@ public class OLA_LIM implements IPlayer, IAuto {
         }
      return value;
     }
-
-    public double Euclidiana(Point from, Point center) {
-        
-        double calx = Math.pow(from.x - center.x, 2);
-        double caly = Math.pow(from.y - center.y, 2);
-        
-        return Math.sqrt(calx + caly);
-    }
+    
+    /**
+     * Funció que comprova si un punt no està fora del rang del tauler.
+     * 
+     * @param x coordenada x d'un punt qualsevol
+     * @param y coordenada y d'un punt qualsevol.
+     * @return true si el punt és vàlid.
+     */
     
     public boolean validaCoordenadas(int x, int y) {
         return (x >= 0 && x <= 7) && (y >= 0 && y <= 7);
     }
+    
+    /**
+     * Funció que a partir d'un punt donat, retorna el grup que forma 
+     * em les seves veïnes.
+     * 
+     * @param s tauler actual.
+     * @param from punt central del qual es miren les veïnes.
+     * @param color color del punt central.
+     * @return retorna el conjunt que forma un punt qualsevol amb les del seu voltant.
+     */
     
     public ArrayList creaSubConjunto(GameStatus s, Point from, CellType color) {
         
@@ -344,6 +362,15 @@ public class OLA_LIM implements IPlayer, IAuto {
         return puntos;
     }
     
+    /**
+     * Funció que fa la acció de retornar amb una array el major nombre
+     * de fitxes connectades d'un determinat color de fitxes.
+     *
+     * @param s tauler actual.
+     * @param color color del que volem crear el grup més gran.
+     * @return retorna el grup més gran d'un determinat color.
+     */
+    
     public ArrayList grupoMayor(GameStatus s, CellType color){
         
         ArrayList <Point> listapuntos = new ArrayList(), grupoAux;
@@ -382,6 +409,14 @@ public class OLA_LIM implements IPlayer, IAuto {
         return grupoMayor;
     }
     
+    /**
+     * Funció que concatena dues arrays sense elements repetits.
+     * 
+     * @param a primera array per concatenar
+     * @param b segona array per concatenar
+     * @return retorna l'array resultant de la concatenació.
+     */
+    
     public ArrayList concatena(ArrayList a, ArrayList b){
         
         ArrayList conc = a;
@@ -394,42 +429,21 @@ public class OLA_LIM implements IPlayer, IAuto {
         
         return conc;
     }
+    
     /**
-     * texto importante sobre la funcion
-     * @param gs
-     * @param color
-     * @return 
+     * Funció que calcula la heurística a partir del grup més gran d'un determinat color,
+     * tenint en compte quins punts es queden d'aquest grup.
+     * 
+     * @param gs tauler actual
+     * @param color color del que volem calcular la heurística.
+     * @return retorna el valor resultant calculat.
      */
    public int getHeuristicaDef(GameStatus gs, CellType color) {
-        // Quitar euclidiana y tener en cuenta solo el grupo Mayor.
         
         int qn = gs.getNumberOfPiecesPerColor(color);
         
         ArrayList <Point> puntosFuera = new ArrayList(); 
         ArrayList <Point> grupoMaximo = grupoMayor(gs, color);
-        
-        // Hacemos la distancia de los puntos de fuera respecto al grupo mayor
-        
-//        for(int i = 0; i< qn; i++) {
-//            
-//            Point puntoAux = gs.getPiece(color, i);
-//            
-//            if(!grupoMaximo.contains(puntoAux)){
-//                
-//                puntosFuera.add(puntoAux);
-//                
-//                double minimEucl = Integer.MAX_VALUE;
-//            
-//                for(int j = 0; j < grupoMaximo.size(); j++) {
-//
-//                    double eucl = Euclidiana(puntoAux, grupoMaximo.get(j));
-//
-//                    if(minimEucl > eucl) minimEucl = eucl;
-//                }
-//
-//                sumaEucl += minimEucl;
-//            }
-//        }
         
         int valorMult = 1;
         if(color == this.color) {
@@ -443,18 +457,16 @@ public class OLA_LIM implements IPlayer, IAuto {
         
         return grupoMaximo.size() * valorMult;
     }
-    
-    public int heuristicas(GameStatus s, CellType color){
-        
-        int h1 = 0;
-        int h2 = 0;
-        
-        h1 = getHeuristicaDef(s,color);
-        h2 = centre(s,color);
-        
-        return h1+h2;
-    }
-    
+   
+    /**
+     * Funció que segons la distància a la que es trobi un punt respecte un conjunt
+     * de punts determinat, retorna un valor o un altre, quant més aprop més valor.
+     * 
+     * @param gs tauler actual
+     * @param color color del que volem fer el càlcu heurístic.
+     * @return retorna el valor calculat després de fer el càlcul
+     */
+   
     public int centre(GameStatus gs, CellType color){
         
         int res = 0;
@@ -489,5 +501,24 @@ public class OLA_LIM implements IPlayer, IAuto {
 
         return res;
         
+    }
+    
+    /**
+    * Funció que fa la suma ponderada de les dues heurístiques calculades,
+    * la de centre y la del grup major.
+    * @param s tauler actual
+    * @param color color del que volem fer el càlcul heurístic.
+    * @return retorna la suma de les dues heurísticas.
+    */
+    
+    public int heuristicas(GameStatus s, CellType color){
+        
+        int h1 = 0;
+        int h2 = 0;
+        
+        h1 = getHeuristicaDef(s,color);
+        h2 = centre(s,color);
+        
+        return h1+h2;
     }
 }

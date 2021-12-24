@@ -21,12 +21,16 @@ public class Game {
             @Override
             public void run() {
                 
-                IPlayer player1 = new OLA();
-                //IPlayer player2 = new RandomPlayer("Crazy Chris");
+                // OLA és el jugador amb l'IDS i OLA_LIM el de profunditat fixa.
+                 IPlayer player1 = new OLA();
+                //IPlayer player1 = new OLA_LIM(4);
+                
+                
                 IPlayer player2 = new MCCloudPlayer();
                 //IPlayer player2 = new RandomPlayer("Crazy Chris");
+                //IPlayer player2 = new RandomPlayer("Crazy Chris");
                 //IPlayer player2 = new HumanPlayer("Octopus");
-                 //IPlayer player2 = new OLA3();
+                
                 new Board(player1 , player2, 10, Level.DIFFICULT);
              }
         });
