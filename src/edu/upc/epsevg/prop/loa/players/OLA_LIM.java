@@ -119,8 +119,8 @@ public class OLA_LIM implements IPlayer, IAuto {
             moviments = (s.getMoves(from));
 
             if (moviments != null) {
-                for (int qt = 0; qt <= moviments.size(); qt++) {
-                    to = moviments.remove(0);
+                for (int qt = 0; qt < moviments.size(); qt++) {
+                    to = moviments.get(qt);
 
                     //fusion de minimax y move
                     if (!s.isGameOver()) {
@@ -131,14 +131,14 @@ public class OLA_LIM implements IPlayer, IAuto {
 
                         if(saux.isGameOver() && saux.GetWinner() == color){
                             System.out.println("shortcut for real winners :P");
-                            return new Move(from, to, nodesExp, prof, SearchType.MINIMAX_IDS);
+                            return new Move(from, to, nodesExp, prof, SearchType.MINIMAX);
                         }
 
                         valorNou = movMin(saux, prof - 1, alpha, beta, CellType.opposite(color));
 
                         if (valorNou >= valor) {
                             valor = valorNou;
-                            movimiento = new Move(from, to, nodesExp, prof, SearchType.MINIMAX_IDS);
+                            movimiento = new Move(from, to, nodesExp, prof, SearchType.MINIMAX);
                         }
                     }
                 }
@@ -195,7 +195,7 @@ public class OLA_LIM implements IPlayer, IAuto {
 
             if (moviments != null) {
                 for (int qt = 0; qt < moviments.size(); qt++) {
-                    to = moviments.remove(0);
+                    to = moviments.get(qt);
 
                     if (!s.isGameOver()) {
 
@@ -269,7 +269,7 @@ public class OLA_LIM implements IPlayer, IAuto {
 
             if (moviments != null) {
                 for (int qt = 0; qt < moviments.size(); qt++) {
-                    to = moviments.remove(0);
+                    to = moviments.get(qt);
 
                     if (!s.isGameOver()) {
 

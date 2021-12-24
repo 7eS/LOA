@@ -175,4 +175,99 @@ public class ElMeuStatus extends GameStatus {
         
         return -sumaEucl + grupoMaximo.size();
     }
+    
+    public int block(GameStatus gs, CellType colorRival){
+        
+        int res = 0;
+        
+        int qn = gs.getNumberOfPiecesPerColor(colorRival);
+        
+        ArrayList <Point> puntosFuera = new ArrayList();
+        
+        ArrayList <Point> grupoMaximo = grupoMayor(gs, colorRival);
+        
+        int sumaEucl = 0;
+        
+        // Hacemos la distancia de los puntos de fuera respecto al grupo mayor
+        
+        for(int i = 0; i< qn; i++) {
+            
+            Point puntoRival = gs.getPiece(colorRival, i);
+            
+            if(!grupoMaximo.contains(puntoRival)){
+                
+                puntosFuera.add(puntoRival);
+                
+                double minimEucl = Integer.MAX_VALUE;
+            
+                for(int j = 0; j < puntosFuera.size(); j++) {
+                        
+                    int vecinasRival = creaSubConjunto(gs, puntoRival, colorRival).size();
+                    
+                    if (vecinasRival == 0) res = 20;
+                    else if (vecinasRival == 1) res = 10;
+                    else res = 0;
+                    
+                    // Añadir posibles medidas euclidianas/Mnahattan para complementar la heurist.
+                }
+            }
+        }
+        return res;
+    }
+    
+    public int centre(GameStatus gs, CellType color){
+        int res = 0;
+        
+        ArrayList<Point> centro = new ArrayList();
+        ArrayList<Integer> test2 = new ArrayList();
+        
+        
+        
+        Point centro1 = new Point(3,3);
+        Point centro2 = new Point(3,4);
+        Point centro3 = new Point(4,3);
+        Point centro4 = new Point(4,4);
+        
+        centro.add(centro1);
+        centro.add(centro2);
+        centro.add(centro3);
+        centro.add(centro4);
+        
+        int qn = gs.getNumberOfPiecesPerColor(color);
+        Point ficha;
+        
+        for (int i = 0; i < qn; i++) {
+            ficha = gs.getPiece(color, i).getLocation();
+            if(centro.contains(ficha)) res+=100;
+            
+            else if(gs.isInBounds(i, gs.findPiece(centro3, color))){
+                System.out.println("no estamos juntas: "+ficha+""+centro3.getLocation());
+                res+=50;
+            }
+            else{
+                System.out.println("dist: "+ficha.distance(centro4));
+                double dist = ficha.distance(centro4);
+                res -= 10*dist;
+            }        
+        }
+        int test[] = gs.getConnectedComponents();
+        System.out.println("qn: "+qn);
+        System.out.println("test size: "+test.length);
+        System.out.println("valors test:");
+        for (int i = 0; i < test.length; i++) {
+            System.out.println("test[i]: "+test[i]);
+            System.out.println(""+gs.getPiece(color, test[i]).getLocation()+"");
+            
+        }
+
+        return res;
+    }
+    
+    public int zobrist(GameStatus gs, CellType color, Move from, Move to){
+        int res = 0;
+        return res;
+    }
+    
+    
+    
 }
